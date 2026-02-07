@@ -4,10 +4,8 @@
 
 <template>
     <div>
-        <h1>Brands</h1>
+        Not Found
     </div>
 </template>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

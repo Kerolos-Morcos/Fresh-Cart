@@ -1,13 +1,10 @@
 <script setup lang="ts">
+import Topbar from './topbar.vue';
 
 </script>
 
 <template>
-    <div>
-        Navbar
-    </div>
+    <Topbar />
 </template>
 
-<style lang="scss" scoped>
-
-</style>
+<style scoped></style>

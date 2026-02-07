@@ -23,14 +23,29 @@ const router = createRouter({
           name: "brands",
           component: () => import("../pages/Brands.vue"),
         },
+        {
+          path: "shop",
+          name: "shop",
+          component: () => import("../pages/Shop.vue"),
+        },
+        {
+          path: "register",
+          name: "register",
+          component: () => import("../pages/Register.vue"),
+        },
+        {
+          path: "login",
+          name: "login",
+          component: () => import("../pages/Login.vue"),
+        },
       ],
     },
     // For Not Displaying Nav & Footer
-    {
-      path: "/about",
-      name: "about",
-      component: () => import("../views/AboutView.vue"),
-    },
+    // {
+    //   path: "/:pathMatch(.*)*",
+    //   name: "not-found",
+    //   component: () => import("../pages/NotFound.vue"),
+    // },
   ],
 });
 
