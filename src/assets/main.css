@@ -242,11 +242,37 @@ body {
   .text-primary-600 {
     color: var(--color-primary-600);
   }
+
+  .bg-primary-50 {
+    background-color: var(--color-primary-50);
+  }
+  .bg-primary-100 {
+    background-color: var(--color-primary-100);
+  }
   .bg-primary-500 {
     background-color: var(--color-primary-500);
   }
   .bg-primary-600 {
     background-color: var(--color-primary-600);
+  }
+
+  .bg-primary-700 {
+    background-color: var(--color-primary-700);
+  }
+
+  .bg-primary-800 {
+    background-color: var(--color-primary-800);
+  }
+
+  .bg-primary-900 {
+    background-color: var(--color-primary-900);
+  }
+
+  .border-primary-50 {
+    border-color: var(--color-primary-50);
+  }
+  .border-primary-100 {
+    border-color: var(--color-primary-100);
   }
 
   .border-primary-500 {
@@ -422,6 +448,18 @@ body {
     color: var(--color-primary-600);
   }
 
+  .group:hover .group-hover\:text-primary-600 {
+    color: var(--color-primary-600);
+  }
+
+  .hover\:bg-primary-50:hover {
+    background-color: var(--color-primary-50);
+  }
+
+  .hover\:bg-primary-100:hover {
+    background-color: var(--color-primary-100);
+  }
+
   .hover\:bg-primary-500:hover {
     background-color: var(--color-primary-500);
   }
@@ -430,11 +468,52 @@ body {
     background-color: var(--color-primary-600);
   }
 
+  .hover\:bg-primary-700:hover {
+    background-color: var(--color-primary-700);
+  }
+
+  .hover\:bg-primary-800:hover {
+    background-color: var(--color-primary-800);
+  }
+
+  .hover\:bg-primary-900:hover {
+    background-color: var(--color-primary-900);
+  }
+
+  .hover\:border-primary-50:hover {
+    border-color: var(--color-primary-50);
+  }
+
+  .hover\:border-primary-100:hover {
+    border-color: var(--color-primary-100);
+  }
+
   .hover\:border-primary-500:hover {
     border-color: var(--color-primary-500);
   }
 
   .hover\:border-primary-600:hover {
     border-color: var(--color-primary-600);
+  }
+  /* shadow-primary-600/20 */
+
+  .shadow-primary-600\/20 {
+    --tw-shadow-color: color-mix(
+      in oklab,
+      var(--color-primary-600) 20%,
+      transparent
+    );
+  }
+
+  .focus\:border-primary-500:focus {
+    border-color: var(--color-primary-500);
+  }
+
+  .focus\:ring-primary-500\/20:focus {
+    --tw-ring-color: color-mix(
+      in oklab,
+      var(--color-primary-500) 20%,
+      transparent
+    );
   }
 }
