@@ -5,6 +5,7 @@ body {
   color: var(--color-gray-700);
   font-family: var(--font-exo);
 }
+
 @layer base {
   *,
   :after,
@@ -440,6 +441,26 @@ body {
   }
 
   /* Hover */
+  .hover\`:text-primary-50:hover {
+    color: var(--color-primary-50);
+  }
+
+  .hover\:text-primary-100:hover {
+    color: var(--color-primary-100);
+  }
+
+  .hover\:text-primary-200:hover {
+    color: var(--color-primary-200);
+  }
+
+  .hover\:text-primary-300:hover {
+    color: var(--color-primary-300);
+  }
+
+  .hover\:text-primary-400:hover {
+    color: var(--color-primary-400);
+  }
+
   .hover\:text-primary-500:hover {
     color: var(--color-primary-500);
   }

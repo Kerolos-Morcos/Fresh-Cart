@@ -1,11 +1,19 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+import OffCanvas from './OffCanvas.vue';
 import Topbar from './TopBar.vue';
 
+
+const isCanvasOpen = ref(false)
+
+function toggleCanvas() {
+    isCanvasOpen.value = !isCanvasOpen.value
+}
 </script>
 
 <template>
     <Topbar />
-    <header class="sticky top-0 z-40 bg-white shadow-sm">
+    <nav class="sticky top-0 z-40 bg-white shadow-sm">
         <div class="bg-white">
             <div class="container mx-auto px-4">
                 <div class="flex items-center justify-between h-16 lg:h-18 gap-4 lg:gap-8">
@@ -30,12 +38,12 @@ import Topbar from './TopBar.vue';
                             </button>
                         </div>
                     </form>
-                    <nav class="hidden xl:flex items-center gap-6">
+                    <ul class="hidden xl:flex items-center gap-6">
                         <RouterLink class="text-gray-700 hover:text-primary-600 font-medium transition-colors" to="/">
                             Home
                         </RouterLink>
                         <RouterLink class="text-gray-700 hover:text-primary-600 font-medium transition-colors"
-                            to="/products">
+                            to="/shop">
                             Shop
                         </RouterLink>
                         <div class="relative group cursor-pointer">
@@ -72,7 +80,7 @@ import Topbar from './TopBar.vue';
                         </div>
                         <RouterLink class="text-gray-700 hover:text-primary-600 font-medium transition-colors"
                             to="/brands">Brands</RouterLink>
-                    </nav>
+                    </ul>
                     <div class="flex items-center gap-1 lg:gap-2">
                         <RouterLink
                             class="hidden lg:flex items-center gap-2 pr-3 mr-2 border-r border-gray-200 hover:opacity-80 transition-opacity"
@@ -117,19 +125,22 @@ import Topbar from './TopBar.vue';
                                 </path>
                             </svg>Sign In
                         </RouterLink>
-                        <button
-                            class="lg:hidden ml-1 w-10 h-10 rounded-full bg-primary-600 hover:bg-primary-700 text-white flex items-center justify-center transition-colors">
+                        <button @click="toggleCanvas"
+                            class="lg:hidden ml-1 w-10 h-10 rounded-full bg-primary-600 hover:bg-primary-700 text-white flex items-center justify-center cursor-pointer transition-colors">
                             <svg data-prefix="fas" data-icon="bars" class="svg-inline--fa fa-bars w-5 h-5" role="img"
                                 viewBox="0 0 448 512" aria-hidden="true">
                                 <path fill="currentColor"
                                     d="M0 96C0 78.3 14.3 64 32 64l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 128C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 288c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32L32 448c-17.7 0-32-14.3-32-32s14.3-32 32-32l384 0c17.7 0 32 14.3 32 32z">
                                 </path>
-                            </svg></button>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-    </header>
+    </nav>
+    <!-- OffCanvas -->
+    <OffCanvas :open="isCanvasOpen" @close="toggleCanvas" />
 </template>
 
 <style scoped></style>
