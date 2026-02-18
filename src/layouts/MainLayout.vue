@@ -8,7 +8,7 @@ import Navbar from '@/components/Navbar.vue';
     <div class="flex flex-col min-h-screen">
         <Navbar />
         <!-- container mx-auto px-4 py-4 grow -->
-        <main class="space-y-4 pt-4 ">
+        <main class="py-10">
             <RouterView />
         </main>
         <Footer />
