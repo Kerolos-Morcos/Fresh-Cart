@@ -5,8 +5,7 @@
 <template>
     <div
         class="flex h-10 gap-2 *:grow my-10 *:cursor-pointer *:transition-colors *:ease-in-out *:duration-200 *:rounded-lg">
-        <button type="button"
-            class="btn bg-transparent border border-gray-300 hover:bg-gray-100 flex justify-center items-center"
+        <button type="button" class="btn bg-transparent border border-gray-300 hover:bg-gray-100 font-semibold"
             aria-label="Sign up with Google">
             <svg data-prefix="fab" data-icon="google" class="svg-inline--fa fa-google w-4 me-2.5 text-red-600"
                 role="img" viewBox="0 0 512 512" aria-hidden="true">
@@ -15,8 +14,7 @@
                 </path>
             </svg><span>Google</span>
         </button>
-        <button type="button"
-            class="btn bg-transparent border border-gray-300 hover:bg-gray-100 flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
+        <button type="button" class="btn bg-transparent border border-gray-300 hover:bg-gray-100 font-semibold"
             aria-label="Sign up with Facebook">
             <svg data-prefix="fab" data-icon="facebook" class="svg-inline--fa fa-facebook w-4 me-2.5 text-blue-600"
                 role="img" viewBox="0 0 512 512" aria-hidden="true">
