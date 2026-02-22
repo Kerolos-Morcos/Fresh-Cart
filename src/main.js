@@ -3,17 +3,16 @@ import "./assets/main.css";
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
-import Toast from "vue-toastification";
-import "vue-toastification/dist/index.css";
+import Vue3Toastify from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
 
 const app = createApp(App);
 
 app.use(router);
 
-app.use(Toast, {
+app.use(Vue3Toastify, {
+  autoClose: 3000,
   position: "top-right",
-  timeout: 4000,
-  closeOnClick: true,
 });
 
 app.mount("#app");

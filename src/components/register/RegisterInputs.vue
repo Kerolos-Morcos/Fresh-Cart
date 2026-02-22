@@ -6,23 +6,29 @@ import { toTypedSchema } from "@vee-validate/zod";
 import PasswordStrength from "./PasswordStrength.vue";
 import { ref } from "vue";
 import axios from "axios";
-import { useToast } from "vue-toastification";
 import ShowHidePassword from "./ShowHidePassword.vue";
-
-const toast = useToast();
+import { toast } from 'vue3-toastify';
 
 const apiError = ref("");
-
 async function registerUser(body) {
-    console.log("body", body);
-    await axios.post("https://ecommerce.routemisr.com/api/v1/auth/signup", body).then((res) => {
-        console.log(res);
-    }).catch((err) => {
-        console.log(err.response);
+    try {
+        await axios.post(
+            "https://ecommerce.routemisr.com/api/v1/auth/signup", body);
+        toast.success("Account Created Successfully!", {
+            autoClose: 5000,
+            closeOnClick: true,
+            draggable: true,
+        });
+    } catch (err) {
         apiError.value = err.response?.data?.message || "Something went wrong";
-        toast.error(apiError.value);
-    });
+        toast.error(apiError.value, {
+            autoClose: 5000,
+            closeOnClick: true,
+            draggable: true,
+        });
+    }
 }
+
 const passwordValue = ref("");
 const registerSchema =
     toTypedSchema(
