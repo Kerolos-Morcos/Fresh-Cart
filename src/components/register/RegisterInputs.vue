@@ -1,14 +1,15 @@
 <script setup>
 import { registerSchema, passwordValue } from "../../validations/registerSchema";
 import RegisterWithMedia from "./RegisterWithMedia.vue";
-import { ErrorMessage, Field, Form } from "vee-validate";
-import PasswordStrength from "./PasswordStrength.vue";
+import { Form } from "vee-validate";
 import { ref } from "vue";
 import axios from "axios";
-import ShowHidePassword from "./ShowHidePassword.vue";
 import { toast } from 'vue3-toastify';
 import SubmitButton from "./SubmitButton.vue";
 import { useRouter } from "vue-router";
+import BaseField from "../form/BaseField.vue";
+import BaseCheckBox from "../form/BaseCheckBox.vue";
+import BasePasswordField from "../form/BasePasswordField.vue";
 
 const apiError = ref("");
 const isLoading = ref(false);
@@ -38,8 +39,6 @@ async function registerUser(body, { resetForm }) {
         isLoading.value = false;
     }
 }
-
-const showPassword = ref(false);
 </script>
 
 <template>
@@ -54,65 +53,24 @@ const showPassword = ref(false);
             <span class="sr-only">or</span>
         </div>
         <Form @submit="registerUser" :validation-schema="registerSchema" class="space-y-7 *:font-medium"
-            :initial-values="{ terms: false }" :validate-on-input="true">
-            <div class="flex flex-col gap-2">
-                <label for="name">Name*</label>
-                <Field :validate-on-input="true" :validate-on-blur="true" name="name" type="text" id="name"
-                    class="form-control" placeholder="Ali" aria-invalid="false" />
-                <ErrorMessage class="errorMessage" name="name" />
-            </div>
-            <div class="flex flex-col gap-2">
-                <label for="email">Email*</label>
-                <Field :validate-on-input="true" :validate-on-blur="true" name="email" type="email" id="email"
-                    class="form-control" placeholder="ali@example.com" autocomplete="email" aria-invalid="false" />
-                <ErrorMessage class="errorMessage" name="email" />
-            </div>
-            <div class="flex flex-col gap-2">
-                <div class="flex flex-col gap-2">
-                    <label for="password">Password*</label>
-                    <Field :validate-on-input="true" :validate-on-blur="true" name="password" v-slot="{ field }">
-                        <div class="relative">
-                            <input id="password" v-bind="field" :type="showPassword ? 'text' : 'password'"
-                                placeholder="Create a strong password" class="form-control w-full"
-                                v-model="passwordValue" />
-                            <ShowHidePassword :field="field" :showPassword="showPassword"
-                                @click="showPassword = !showPassword" />
-                        </div>
-                        <PasswordStrength :password="field.value" />
-                    </Field>
-                    <ErrorMessage class="errorMessage" name="password" />
-                </div>
-            </div>
-            <div class="flex flex-col gap-2">
-                <label for="rePassword">Confirm Password*</label>
-                <Field :validate-on-input="true" :validate-on-blur="true" name="rePassword" type="password"
-                    class="form-control" placeholder="confirm your password" id="rePassword" />
-                <ErrorMessage class="errorMessage" name="rePassword" />
-            </div>
-            <div class="flex flex-col gap-2">
-                <label for="phone">Phone Number*</label>
-                <Field :validate-on-input="true" :validate-on-blur="true" name="phone" type="tel" id="phone"
-                    class="form-control" placeholder="+1 234 567 8900" autocomplete="tel" aria-invalid="false" />
-                <ErrorMessage class="errorMessage" name="phone" />
-            </div>
-            <div>
-                <div class="flex items-center gap-2">
-                    <Field :validate-on-input="true" :validate-on-blur="true" :value="true" name="terms" type="checkbox"
-                        id="terms" class="size-4 accent-primary-600" aria-invalid="false" />
-                    <label for="terms" class="ms-2">
-                        I agree to the
-                        <RouterLink class="text-primary-600 hover:underline" to="/terms">
-                            Terms of Service
-                        </RouterLink>
-                        and
-                        <RouterLink class="text-primary-600 hover:underline" to="/privacy-policy">
-                            Privacy Policy
-                        </RouterLink>
-                        *
-                    </label>
-                </div>
-                <ErrorMessage class="errorMessage" name="terms" />
-            </div>
+            :validate-on-input="true">
+            <BaseField name="name" label="Name*" placeholder="Ali" />
+            <BaseField name="email" label="Email*" type="email" placeholder="ali@example.com" />
+            <BasePasswordField name="password" label="Password*" placeholder="Create a strong password"
+                v-model="passwordValue" :showStrength="true" />
+            <BasePasswordField name="rePassword" label="Confirm Password*" placeholder="Confirm your password"
+                :showStrength="false" />
+            <BaseField name="phone" label="Phone Number*" type="tel" placeholder="+1 234 567 8900" />
+            <BaseCheckBox name="terms">
+                I agree to Terms
+                <RouterLink class="text-primary-600 hover:underline" to="/terms">
+                    Terms of Service
+                </RouterLink>
+                and
+                <RouterLink class="text-primary-600 hover:underline" to="/privacy-policy">
+                    Privacy Policy
+                </RouterLink>*
+            </BaseCheckBox>
             <SubmitButton :isLoading="isLoading" />
         </Form>
         <p class="border-t pt-10 border-gray-300/30 my-4 text-center">
