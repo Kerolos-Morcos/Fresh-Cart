@@ -1,5 +1,7 @@
 <script setup>
+import { useAuthStore } from '@/stores/authStore';
 
+const authStore = useAuthStore();
 </script>
 
 <template>
@@ -53,7 +55,36 @@
                         </a>
                     </div>
                     <span class="w-px h-4 bg-gray-200"></span>
-                    <div class="flex items-center gap-4 font-medium">
+
+                    <!-- Logged in -->
+                    <div v-if="authStore.isLoggedUser" class="flex items-center gap-4 font-medium">
+                        <RouterLink
+                            class="flex items-center gap-2 text-gray-600 hover:text-primary-600 transition-colors"
+                            to="/profile">
+                            <svg data-prefix="far" data-icon="user" class="svg-inline--fa w-3 fa-user text-xs"
+                                role="img" viewBox="0 0 448 512" aria-hidden="true">
+                                <path fill="currentColor"
+                                    d="M144 128a80 80 0 1 1 160 0 80 80 0 1 1 -160 0zm208 0a128 128 0 1 0 -256 0 128 128 0 1 0 256 0zM48 480c0-70.7 57.3-128 128-128l96 0c70.7 0 128 57.3 128 128l0 8c0 13.3 10.7 24 24 24s24-10.7 24-24l0-8c0-97.2-78.8-176-176-176l-96 0C78.8 304 0 382.8 0 480l0 8c0 13.3 10.7 24 24 24s24-10.7 24-24l0-8z">
+                                </path>
+                            </svg>
+                            <span>kero</span>
+                        </RouterLink>
+                        <button @click="authStore.logout"
+                            class="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-red-500 transition-colors">
+                            <svg data-prefix="fas" data-icon="right-from-bracket"
+                                class="svg-inline--fa fa-right-from-bracket w-3 text-xs" role="img"
+                                viewBox="0 0 512 512" aria-hidden="true">
+                                <path fill="currentColor"
+                                    d="M505 273c9.4-9.4 9.4-24.6 0-33.9L361 95c-6.9-6.9-17.2-8.9-26.2-5.2S320 102.3 320 112l0 80-112 0c-26.5 0-48 21.5-48 48l0 32c0 26.5 21.5 48 48 48l112 0 0 80c0 9.7 5.8 18.5 14.8 22.2s19.3 1.7 26.2-5.2L505 273zM160 96c17.7 0 32-14.3 32-32s-14.3-32-32-32L96 32C43 32 0 75 0 128L0 384c0 53 43 96 96 96l64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0c-17.7 0-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32l64 0z">
+                                </path>
+                            </svg>
+                            <span>Sign Out</span>
+                        </button>
+                    </div>
+                    <!-- Logged in -->
+
+                    <!-- Logged Out -->
+                    <div v-else class="flex items-center gap-4 font-medium">
                         <RouterLink to="/login"
                             class="flex items-center gap-1.5 text-gray-600 hover:text-primary-600 transition-colors">
                             <svg data-prefix="far" data-icon="user" class="svg-inline--fa fa-user w-3" role="img"

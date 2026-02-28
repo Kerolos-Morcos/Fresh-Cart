@@ -11,19 +11,33 @@ import LoginInputsStaticData from './LoginInputsStaticData.vue';
 import { toast } from 'vue3-toastify';
 import { loginSchema } from '@/validations/loginSchema';
 import axios from 'axios';
+import { useAuthStore } from '@/stores/authStore';
 
+const authStore = useAuthStore();
 const apiError = ref("");
 const isLoading = ref(false);
 const router = useRouter();
+
 async function loginUser(body, { resetForm }) {
     try {
         isLoading.value = true;
-        await axios.post(
+        const res = await axios.post(
             "https://ecommerce.routemisr.com/api/v1/auth/signin", body);
         resetForm();
+        // token
+        const token = res.data.token;
+        localStorage.setItem("token", token);
+        authStore.token = token;
+
         setTimeout(() => {
             router.push({ name: 'home' });
-        }, 500);
+        }, 700);
+
+        toast.success("Logged in successfully!", {
+            autoClose: 3000,
+            pauseOnHover: false,
+            closeOnClick: true,
+        });
     } catch (err) {
         apiError.value = err.response?.data?.message || "Something went wrong";
         toast.error(apiError.value, {
