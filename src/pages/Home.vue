@@ -1,4 +1,5 @@
 <script setup>
+import HomeServices from '@/components/home/HomeServices.vue';
 import HomeSlider from '@/components/home/HomeSlider.vue';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -7,6 +8,7 @@ const authStore = useAuthStore();
 
 <template>
   <HomeSlider />
-  <main class="container mx-auto px-4">
+  <main class="">
+    <HomeServices />
   </main>
 </template>

@@ -1,8 +1,10 @@
 <script setup>
-const serviceData = [
+const defaultServices = [
     {
         title: "Free Shipping",
         desc: "On orders over 500 EGP",
+        iconBg: "bg-primary-100",
+        iconColor: "text-primary-600",
         svg: `
         <svg data-prefix="fas" data-icon="truck"
             class="svg-inline--fa fa-truck text-primary-600 w-4.5 h-4.5"
@@ -15,6 +17,8 @@ const serviceData = [
     {
         title: "Easy Returns",
         desc: "14-day return policy",
+        iconBg: "bg-primary-100",
+        iconColor: "text-primary-600",
         svg: `
         <svg data-prefix="fas" data-icon="arrow-rotate-left"
             class="svg-inline--fa fa-arrow-rotate-left text-primary-600 w-4.5 h-4.5"
@@ -27,6 +31,8 @@ const serviceData = [
     {
         title: "Secure Payment",
         desc: "100% secure checkout",
+        iconBg: "bg-primary-100",
+        iconColor: "text-primary-600",
         svg: `
         <svg data-prefix="fas" data-icon="shield-halved"
             class="svg-inline--fa fa-shield-halved text-primary-600 w-4.5 h-4.5"
@@ -39,6 +45,8 @@ const serviceData = [
     {
         title: "24/7 Support",
         desc: "Contact us anytime",
+        iconBg: "bg-primary-100",
+        iconColor: "text-primary-600",
         svg: `
         <svg data-prefix="fas" data-icon="headset"
             class="svg-inline--fa fa-headset text-primary-600 w-4.5 h-4.5"
@@ -47,28 +55,61 @@ const serviceData = [
                 d="M224 64c-79 0-144.7 57.3-157.7 132.7 9.3-3 19.3-4.7 29.7-4.7l16 0c26.5 0 48 21.5 48 48l0 96c0 26.5-21.5 48-48 48l-16 0c-53 0-96-43-96-96l0-64C0 100.3 100.3 0 224 0S448 100.3 448 224l0 168.1c0 66.3-53.8 120-120.1 120l-87.9-.1-32 0c-26.5 0-48-21.5-48-48s21.5-48 48-48l32 0c26.5 0 48 21.5 48 48l0 0 40 0c39.8 0 72-32.2 72-72l0-20.9c-14.1 8.2-30.5 12.8-48 12.8l-16 0c-26.5 0-48-21.5-48-48l0-96c0-26.5 21.5-48 48-48l16 0c10.4 0 20.3 1.6 29.7 4.7-13-75.3-78.6-132.7-157.7-132.7z">
             </path>
         </svg>`
-    }
+    },
 ]
+
+const props = defineProps({
+    services: {
+        type: Array,
+        required: false
+    },
+
+    sectionClass: {
+        type: String,
+        default: "bg-primary-50 border-y border-primary-100"
+    },
+
+    containerClass: {
+        type: String,
+        default: "container mx-auto px-4 py-6"
+    },
+
+    gridClass: {
+        type: String,
+        default: "grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
+    },
+
+    itemClass: {
+        type: String,
+        default: "flex items-center gap-3"
+    }
+
+})
+
+const servicesToRender = props.services ?? defaultServices;
 </script>
 
 <template>
-    <div class="bg-primary-50 border-y border-primary-100">
-        <div class="container mx-auto px-4 py-6">
-            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="flex items-center gap-3" v-for="service in serviceData" :key="service.title">
-                    <div class="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center shrink-0">
-                        <div class="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center shrink-0 text-primary-600"
-                            v-html="service.svg">
-                        </div>
+    <section :class="sectionClass">
+        <div :class="containerClass">
+            <div :class="gridClass">
+                <div v-for="service in servicesToRender" :key="service.title" :class="itemClass">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                        :class="service.iconBg || 'bg-primary-100'">
+                        <div :class="service.iconColor || 'text-primary-600'" v-html="service.svg" />
                     </div>
                     <div>
-                        <h4 class="font-semibold text-gray-900 text-sm">{{ service.title }}</h4>
-                        <p class="text-gray-500 text-xs">{{ service.desc }}</p>
+                        <h4 class="font-semibold text-gray-900 text-sm">
+                            {{ service.title }}
+                        </h4>
+                        <p class="text-gray-500 text-xs font-medium">
+                            {{ service.desc }}
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 </template>
 
 <style scoped></style>
