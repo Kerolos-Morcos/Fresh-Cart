@@ -2,7 +2,6 @@
 import { Form } from 'vee-validate';
 import LoginInputFeatures from './LoginInputFeatures.vue';
 import { useRouter } from 'vue-router';
-import { ref } from 'vue';
 import BaseField from '../form/BaseField.vue';
 import BasePasswordField from '../form/BasePasswordField.vue';
 import BaseCheckBox from '../form/BaseCheckBox.vue';
@@ -10,43 +9,38 @@ import SubmitButton from '../register/SubmitButton.vue';
 import LoginInputsStaticData from './LoginInputsStaticData.vue';
 import { toast } from 'vue3-toastify';
 import { loginSchema } from '@/validations/loginSchema';
-import axios from 'axios';
 import { useAuthStore } from '@/stores/authStore';
+import { useAPI } from '@/composables/useAPI';
 
 const authStore = useAuthStore();
-const apiError = ref("");
-const isLoading = ref(false);
+const { fetchData, error, isLoading } = useAPI();
 const router = useRouter();
 
 async function loginUser(body, { resetForm }) {
-    try {
-        isLoading.value = true;
-        const res = await axios.post(
-            "https://ecommerce.routemisr.com/api/v1/auth/signin", body);
-        resetForm();
-        // token
-        const token = res.data.token;
+    const res = await fetchData({
+        url: "/v1/auth/signin",
+        method: "post",
+        data: body,
+    });
+    if (res) {
+        const token = res.token;
         localStorage.setItem("token", token);
+
+        resetForm();
         authStore.token = token;
-
-        setTimeout(() => {
-            router.push({ name: 'home' });
-        }, 700);
-
-        toast.success("Logged in successfully!", {
+        router.push({ name: "home" }).then(() => {
+            toast.success("Logged in successfully!", {
+                autoClose: 2000,
+                pauseOnHover: false,
+                closeOnClick: true,
+            });
+        });
+    } else if (error.value) {
+        toast.error(error.value.msg, {
             autoClose: 3000,
             pauseOnHover: false,
             closeOnClick: true,
         });
-    } catch (err) {
-        apiError.value = err.response?.data?.message || "Something went wrong";
-        toast.error(apiError.value, {
-            autoClose: 3000,
-            pauseOnHover: false,
-            closeOnClick: true,
-        });
-    } finally {
-        isLoading.value = false;
     }
 }
 </script>

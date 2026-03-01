@@ -1,14 +1,12 @@
 <script setup>
+import HomeCategories from '@/components/home/HomeCategories.vue';
 import HomeServices from '@/components/home/HomeServices.vue';
 import HomeSlider from '@/components/home/HomeSlider.vue';
-import { useAuthStore } from '@/stores/authStore';
 
-const authStore = useAuthStore();
 </script>
 
 <template>
   <HomeSlider />
-  <main class="">
-    <HomeServices />
-  </main>
+  <HomeServices />
+  <HomeCategories />
 </template>

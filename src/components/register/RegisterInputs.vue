@@ -3,40 +3,38 @@ import { registerSchema, passwordValue } from "../../validations/registerSchema"
 import RegisterWithMedia from "./RegisterWithMedia.vue";
 import { Form } from "vee-validate";
 import { ref } from "vue";
-import axios from "axios";
 import { toast } from 'vue3-toastify';
 import SubmitButton from "./SubmitButton.vue";
 import { useRouter } from "vue-router";
 import BaseField from "../form/BaseField.vue";
 import BaseCheckBox from "../form/BaseCheckBox.vue";
 import BasePasswordField from "../form/BasePasswordField.vue";
+import { useAPI } from "@/composables/useAPI";
 
-const apiError = ref("");
-const isLoading = ref(false);
 const router = useRouter();
+const { fetchData, error, isLoading } = useAPI();
+
 async function registerUser(body, { resetForm }) {
-    try {
-        isLoading.value = true;
-        await axios.post(
-            "https://ecommerce.routemisr.com/api/v1/auth/signup", body);
-        toast.success("Account Created Successfully!", {
-            autoClose: 3000,
-            pauseOnHover: false,
-            closeOnClick: true,
-        });
+    const res = await fetchData({
+        url: "/v1/auth/signup",
+        method: "post",
+        data: body,
+    });
+    if (res) {
         resetForm();
-        setTimeout(() => {
-            router.replace("/login");
-        }, 3000);
-    } catch (err) {
-        apiError.value = err.response?.data?.message || "Something went wrong";
-        toast.error(apiError.value, {
+        router.replace("/login").then(() => {
+            toast.success('Account Created Successfully!', {
+                autoClose: 2000,
+                pauseOnHover: false,
+                closeOnClick: true,
+            });
+        })
+    } else if (error.value) {
+        toast.error(error.value.msg, {
             autoClose: 3000,
             pauseOnHover: false,
             closeOnClick: true,
         });
-    } finally {
-        isLoading.value = false;
     }
 }
 </script>

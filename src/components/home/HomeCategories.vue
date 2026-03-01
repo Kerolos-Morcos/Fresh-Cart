@@ -1,0 +1,56 @@
+<script setup>
+import { useAPI } from '@/composables/useAPI';
+import { onMounted } from "vue";
+import SpecialSectionTitle from '../SpecialSectionTitle.vue';
+
+const { fetchData, error, data } = useAPI();
+
+async function fetchCategories() {
+    const res = await fetchData({ url: "/v1/categories" });
+    if (res) {
+        data.value = res.data;
+        return res.data;
+    } else if (error.value) {
+        console.error("Error fetching categories:", error.value);
+    }
+}
+
+onMounted(() => {
+    fetchCategories();
+});
+</script>
+
+<template>
+    <section class="py-10">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-8">
+                <SpecialSectionTitle :section-title="'Shop By'" :special-title="'Category'" />
+                <RouterLink
+                    class="text-primary-600 self-end sm:self-auto hover:text-primary-700 font-medium flex items-center cursor-pointer"
+                    to="/categories">
+                    View All Categories
+                    <svg data-prefix="fas" data-icon="arrow-right" class="svg-inline--fa fa-arrow-right w-4.5 ml-2"
+                        role="img" viewBox="0 0 512 512" aria-hidden="true">
+                        <path fill="currentColor"
+                            d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z">
+                        </path>
+                    </svg>
+                </RouterLink>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <RouterLink v-for="category in data" :key="category.id"
+                    class="bg-white rounded-lg p-4 text-center shadow-sm hover:shadow-md transition group cursor-pointer"
+                    :to="`/categories/${category._id}`">
+                    <div
+                        class="h-20 w-20 overflow-hidden bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-primary-200 transition">
+                        <img :alt="category.name" loading="lazy" class="w-[300] h-[300] object-cover"
+                            :src="category.image">
+                    </div>
+                    <h3 class="font-medium">{{ category.name }}</h3>
+                </RouterLink>
+            </div>
+        </div>
+    </section>
+</template>
+
+<style scoped></style>
