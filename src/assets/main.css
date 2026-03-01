@@ -655,4 +655,9 @@
   .btn {
     @apply py-2 rounded-lg cursor-pointer flex items-center justify-center;
   }
+
+  /* Active */
+  .router-link-exact-active {
+    color: var(--color-primary-600);
+  }
 }

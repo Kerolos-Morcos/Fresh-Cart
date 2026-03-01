@@ -1,12 +1,12 @@
 <script setup>
+import HomeSlider from '@/components/home/HomeSlider.vue';
 import { useAuthStore } from '@/stores/authStore';
 
 const authStore = useAuthStore();
 </script>
 
 <template>
-  <main class="px-4">
-    <h1>Home</h1>
-    <p>token: {{ authStore.token }}</p>
+  <HomeSlider />
+  <main class="container mx-auto px-4">
   </main>
 </template>

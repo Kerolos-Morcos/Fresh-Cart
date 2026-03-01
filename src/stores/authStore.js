@@ -22,7 +22,7 @@ export const useAuthStore = defineStore("authStore", () => {
   function logout() {
     token.value = null;
     localStorage.removeItem("token");
-    router.replace({ name: "login" });
+    router.push({ name: "login" });
   }
 
   return {

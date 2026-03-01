@@ -6,10 +6,15 @@ import { useAuthStore } from '@/stores/authStore';
 import UserSettings from './navbar/UserSettings.vue';
 
 const authStore = useAuthStore();
-const isCanvasOpen = ref(false)
+const isCanvasOpen = ref(false);
+const isOpen = ref(false);
 
 function toggleCanvas() {
     isCanvasOpen.value = !isCanvasOpen.value
+}
+
+function closeDropdown() {
+    isOpen.value = false;
 }
 </script>
 
@@ -48,7 +53,8 @@ function toggleCanvas() {
                             to="/shop">
                             Shop
                         </RouterLink>
-                        <div class="relative group cursor-pointer">
+                        <div class="relative group cursor-pointer" @mouseenter="isOpen = true;"
+                            @mouseleave="isOpen = false;">
                             <button
                                 class="flex items-center gap-1.5 text-gray-700 hover:text-primary-600 font-medium transition-colors py-2 cursor-pointer">Categories<svg
                                     data-prefix="fas" data-icon="chevron-down"
@@ -59,22 +65,21 @@ function toggleCanvas() {
                                     </path>
                                 </svg>
                             </button>
-                            <div
-                                class="absolute top-full left-0 pt-1 invisible group-hover:visible transition-all duration-200">
+                            <div v-show="isOpen" class="absolute top-full left-0 pt-1 transition-all duration-200">
                                 <div class="bg-white border border-gray-100 rounded-xl shadow-xl py-2 min-w-50">
-                                    <RouterLink
+                                    <RouterLink @click="closeDropdown"
                                         class="block px-4 py-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
                                         to="/categories">All Categories</RouterLink>
-                                    <RouterLink
+                                    <RouterLink @click="closeDropdown"
                                         class="block px-4 py-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
                                         to="/products?category=6439d58a0049ad0b52b9003f">Electronics</RouterLink>
-                                    <RouterLink
+                                    <RouterLink @click="closeDropdown"
                                         class="block px-4 py-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
                                         to="/products?category=6439d5b90049ad0b52b90048">Women's Fashion</RouterLink>
-                                    <RouterLink
+                                    <RouterLink @click="closeDropdown"
                                         class="block px-4 py-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
                                         to="/products?category=6439d2d167d9aa4ca970649f">Men's Fashion</RouterLink>
-                                    <RouterLink
+                                    <RouterLink @click="closeDropdown"
                                         class="block px-4 py-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
                                         to="/products?category=6439d40367d9aa4ca97064a8">Beauty &amp; Health
                                     </RouterLink>
@@ -85,7 +90,7 @@ function toggleCanvas() {
                             to="/brands">Brands</RouterLink>
                     </ul>
                     <div class="flex items-center gap-1 lg:gap-2">
-                        <RouterLink
+                        <RouterLink exact-active-class="''"
                             class="hidden lg:flex items-center gap-2 pr-3 mr-2 border-r border-gray-200 hover:opacity-80 transition-opacity"
                             to="/contact">
                             <div class="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center">
@@ -123,7 +128,7 @@ function toggleCanvas() {
                             </svg>
                         </RouterLink>
                         <UserSettings v-if="authStore.isLoggedUser" />
-                        <RouterLink v-else
+                        <RouterLink v-else exact-active-class="''"
                             class="hidden lg:flex items-center gap-2 ml-2 px-5 py-2.5 rounded-full bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold transition-colors shadow-sm shadow-primary-600/20"
                             to="/login">
                             <svg data-prefix="far" data-icon="user" class="svg-inline--fa fa-user w-3 h-3" role="img"

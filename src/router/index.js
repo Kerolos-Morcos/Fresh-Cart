@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import MainLayout from "@/layouts/MainLayout.vue";
+import { useAuthStore } from "@/stores/authStore";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,48 +13,75 @@ const router = createRouter({
           path: "",
           name: "home",
           component: () => import("../pages/Home.vue"),
-          meta: { requiresAuth: true },
         },
         {
           path: "about",
           name: "about",
           component: () => import("../pages/About.vue"),
-          meta: { requiresAuth: true },
         },
         {
           path: "profile",
           name: "profile",
           component: () => import("../pages/Profile.vue"),
+          meta: { requiresAuth: true },
         },
         {
           path: "brands",
           name: "brands",
           component: () => import("../pages/Brands.vue"),
-          meta: { requiresAuth: true },
         },
         {
           path: "shop",
           name: "shop",
           component: () => import("../pages/Shop.vue"),
-          meta: { requiresAuth: true },
         },
         {
           path: "register",
           name: "register",
           component: () => import("../pages/Register.vue"),
-          meta: { requiresAuth: true },
+          meta: { requiresGuest: true },
         },
         {
           path: "login",
           name: "login",
           component: () => import("../pages/Login.vue"),
-          meta: { requiresAuth: true },
+          meta: { requiresGuest: true },
         },
         {
           path: "product/:id",
           name: "productDetails",
           component: () => import("../pages/ProductDetails.vue"),
+        },
+        {
+          path: "category/:id",
+          name: "categoryProducts",
+          component: () => import("../pages/Shop.vue"),
+        },
+        {
+          path: "orders",
+          name: "orders",
+          component: () => import("../pages/Orders.vue"),
           meta: { requiresAuth: true },
+        },
+        {
+          path: "wishlist",
+          name: "wishlist",
+          component: () => import("../pages/Wishlist.vue"),
+        },
+        {
+          path: "contact",
+          name: "contact",
+          component: () => import("../pages/Contact.vue"),
+        },
+        {
+          path: "categories",
+          name: "categories",
+          component: () => import("../pages/Categories.vue"),
+        },
+        {
+          path: "cart",
+          name: "cart",
+          component: () => import("../pages/Cart.vue"),
         },
       ],
     },
@@ -64,6 +92,18 @@ const router = createRouter({
     //   component: () => import("../pages/NotFound.vue"),
     // },
   ],
+});
+
+router.beforeEach((to, from) => {
+  const authStore = useAuthStore();
+  const isLoggedIn = authStore.isLoggedUser;
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    return { name: "login" };
+  } else if (to.meta.requiresGuest && isLoggedIn) {
+    return { name: "home" };
+  } else {
+    return true;
+  }
 });
 
 export default router;

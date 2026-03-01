@@ -10,8 +10,12 @@ function toggleDropdown() {
     isOpen.value = !isOpen.value;
 }
 
-function closeDropdown() {
+function logoutDropdown() {
     authStore.logout();
+    isOpen.value = false;
+}
+
+function closeDropdown() {
     isOpen.value = false;
 }
 </script>
@@ -54,7 +58,7 @@ function closeDropdown() {
                 <div class="py-2">
                     <RouterLink
                         class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
-                        to="/profile">
+                        to="/profile" @click="closeDropdown">
                         <svg data-prefix="far" data-icon="user" class="svg-inline--fa fa-user w-4 text-gray-400"
                             role="img" viewBox="0 0 448 512" aria-hidden="true">
                             <path fill="currentColor"
@@ -64,7 +68,7 @@ function closeDropdown() {
                     </RouterLink>
                     <RouterLink
                         class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
-                        to="/orders">
+                        to="/orders" @click="closeDropdown">
                         <svg data-prefix="fas" data-icon="box-open" class="svg-inline--fa fa-box-open w-4 text-gray-400"
                             role="img" viewBox="0 0 640 512" aria-hidden="true">
                             <path fill="currentColor"
@@ -74,7 +78,7 @@ function closeDropdown() {
                     </RouterLink>
                     <RouterLink
                         class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
-                        to="/wishlist">
+                        to="/wishlist" @click="closeDropdown">
                         <svg data-prefix="far" data-icon="heart" class="svg-inline--fa fa-heart w-4 text-gray-400"
                             role="img" viewBox="0 0 512 512" aria-hidden="true">
                             <path fill="currentColor"
@@ -84,7 +88,7 @@ function closeDropdown() {
                     </RouterLink>
                     <RouterLink
                         class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
-                        to="/profile/addresses">
+                        to="/profile/addresses" @click="closeDropdown">
                         <svg data-prefix="far" data-icon="address-book"
                             class="svg-inline--fa fa-address-book w-4 text-gray-400" role="img" viewBox="0 0 512 512"
                             aria-hidden="true">
@@ -95,7 +99,7 @@ function closeDropdown() {
                     </RouterLink>
                     <RouterLink
                         class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
-                        to="/profile/settings">
+                        to="/profile/settings" @click="closeDropdown">
                         <svg data-prefix="fas" data-icon="gear" class="svg-inline--fa fa-gear w-4 text-gray-400"
                             role="img" viewBox="0 0 512 512" aria-hidden="true">
                             <path fill="currentColor"
@@ -105,7 +109,7 @@ function closeDropdown() {
                     </RouterLink>
                 </div>
                 <div class="border-t border-gray-100 py-2">
-                    <button @click="closeDropdown"
+                    <button @click="logoutDropdown"
                         class="flex cursor-pointer items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors w-full text-left">
                         <svg data-prefix="fas" data-icon="right-from-bracket"
                             class="svg-inline--fa fa-right-from-bracket w-4" role="img" viewBox="0 0 512 512"
