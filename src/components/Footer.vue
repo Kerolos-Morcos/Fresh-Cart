@@ -9,7 +9,7 @@ const footerColumns = [
     {
         title: "Shop",
         links: [
-            { label: "All Products", to: "/products" },
+            { label: "All Products", to: "/shop" },
             { label: "Categories", to: "/categories" },
             { label: "Brands", to: "/brands" },
             { label: "Electronics", to: "/products?category=electronics" },

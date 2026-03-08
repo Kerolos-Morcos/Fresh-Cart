@@ -83,6 +83,11 @@ const router = createRouter({
           name: "cart",
           component: () => import("../pages/Cart.vue"),
         },
+        {
+          path: "help",
+          name: "help",
+          component: () => import("../pages/HelpCenter.vue"),
+        }
       ],
     },
     // For Not Displaying Nav & Footer

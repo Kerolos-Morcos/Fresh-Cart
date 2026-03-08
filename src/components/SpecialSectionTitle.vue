@@ -1,10 +1,11 @@
 <script setup>
-defineProps(['sectionTitle', 'specialTitle']);
+defineProps(['sectionTitle', 'specialTitle', 'showLine']);
 </script>
 
 <template>
     <div class="flex items-center gap-3 my-8">
-        <div class="h-8 w-1.5 bg-linear-to-b from-emerald-500 to-emerald-700 rounded-full"></div>
+        <div v-show="showLine === true" class="h-8 w-1.5 bg-linear-to-b from-emerald-500 to-emerald-700 rounded-full">
+        </div>
         <h2 class="font-bold text-gray-800 sm:text-xl md:text-2xl lg:text-3xl">
             {{ sectionTitle }}
             <span class="text-emerald-600">{{ specialTitle }}</span>

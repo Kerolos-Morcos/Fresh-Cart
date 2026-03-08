@@ -24,7 +24,7 @@ onMounted(() => {
     <section class="py-10">
         <div class="container mx-auto px-4">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-8">
-                <SpecialSectionTitle :section-title="'Shop By'" :special-title="'Category'" />
+                <SpecialSectionTitle :show-line="true" :section-title="'Shop By'" :special-title="'Category'" />
                 <RouterLink
                     class="text-primary-600 self-end sm:self-auto hover:text-primary-700 font-medium flex items-center cursor-pointer"
                     to="/categories">

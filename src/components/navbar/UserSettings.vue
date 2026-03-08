@@ -1,10 +1,12 @@
 <script setup>
 import { useAuthStore } from '@/stores/authStore';
 import { ref } from 'vue';
+import { onClickOutside } from '@vueuse/core';
 
 
 const authStore = useAuthStore();
 const isOpen = ref(false);
+const dropdownRef = ref(null);
 
 function toggleDropdown() {
     isOpen.value = !isOpen.value;
@@ -18,11 +20,13 @@ function logoutDropdown() {
 function closeDropdown() {
     isOpen.value = false;
 }
+
+onClickOutside(dropdownRef, () => isOpen.value = false)
 </script>
 
 <template>
     <div class="flex items-center gap-1 lg:gap-2">
-        <div class="hidden lg:block relative group">
+        <div class="hidden lg:block relative group" ref="dropdownRef">
             <button @click="toggleDropdown"
                 class="relative p-2.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer" title="Account">
                 <svg data-prefix="far" data-icon="circle-user"
