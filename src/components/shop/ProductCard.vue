@@ -18,12 +18,12 @@ defineProps(['data']);
                         }}%
                     </span>
                 </div>
-                <ProductActionButtons />
+                <ProductActionButtons :product="product" />
             </div>
             <div class="p-4 flex flex-col flex-1">
                 <div class="text-xs text-gray-500 mb-1">{{ product.category?.name }}</div>
-                <h3 class="font-medium mb-1 cursor-pointer min-h-11" title="Duramo 10 Running Shoes">
-                    <RouterLink class="line-clamp-2" :to="`/shop/${product.id}`">
+                <h3 class="font-medium mb-1 cursor-pointer min-h-11" :title="product.title">
+                    <RouterLink class="line-clamp-2" :to="`/product/${product.id}`">
                         {{ product.title }}
                     </RouterLink>
                 </h3>

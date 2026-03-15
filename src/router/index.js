@@ -18,28 +18,31 @@ const router = createRouter({
           path: "about",
           name: "about",
           component: () => import("../pages/About.vue"),
+          meta: { breadcrumb: "About" },
         },
         {
           path: "profile",
           name: "profile",
           component: () => import("../pages/Profile.vue"),
-          meta: { requiresAuth: true },
+          meta: { requiresAuth: true, breadcrumb: "Profile" },
         },
         {
           path: "brands",
           name: "brands",
           component: () => import("../pages/Brands.vue"),
+          meta: { breadcrumb: "Brands" },
         },
         {
           path: "shop",
           name: "shop",
           component: () => import("../pages/Shop.vue"),
+          meta: { breadcrumb: "Shop" },
         },
         {
           path: "register",
           name: "register",
           component: () => import("../pages/Register.vue"),
-          meta: { requiresGuest: true },
+          meta: { requiresGuest: true, breadcrumb: "Register" },
         },
         {
           path: "login",
@@ -48,7 +51,7 @@ const router = createRouter({
           meta: { requiresGuest: true },
         },
         {
-          path: "product/:id",
+          path: "product/:id/:slug",
           name: "productDetails",
           component: () => import("../pages/ProductDetails.vue"),
         },
@@ -87,7 +90,7 @@ const router = createRouter({
           path: "help",
           name: "help",
           component: () => import("../pages/HelpCenter.vue"),
-        }
+        },
       ],
     },
     // For Not Displaying Nav & Footer
@@ -97,6 +100,9 @@ const router = createRouter({
     //   component: () => import("../pages/NotFound.vue"),
     // },
   ],
+  scrollBehavior(to, from, savedPosition) {
+    return { top: 0 };
+  },
 });
 
 router.beforeEach((to, from) => {

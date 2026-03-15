@@ -24,10 +24,13 @@ async function loginUser(body, { resetForm }) {
     });
     if (res) {
         const token = res.token;
+        const user = res.user;
         localStorage.setItem("token", token);
-
+        localStorage.setItem("user", JSON.stringify(user));
+        console.log(res);
         resetForm();
         authStore.token = token;
+        authStore.user = user;
         router.push({ name: "home" }).then(() => {
             toast.success("Logged in successfully!", {
                 autoClose: 2000,

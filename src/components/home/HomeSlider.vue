@@ -37,8 +37,9 @@ const sliderData = [
         <Slide v-for="(slide, index) in sliderData" :key="index">
             <div class="relative h-400 sm:h-112.5 md:h-125 w-full bg-cover bg-center flex flex-col"
                 :style="{ backgroundImage: `url(${sliderImage})` }">
-                <div class="absolute inset-0 bg-linear-to-r from-green-500/90 to-green-400/50 flex items-center">
-                    <div class="container px-4 mx-auto">
+                <div
+                    class="absolute inset-0 bg-linear-to-r from-green-500/90 to-green-400/50 flex items-center px-6 sm:px-10 md:px-16 lg:px-20">
+                    <div class="container px-16 sm:px-14 md:px-4 mx-auto">
                         <div class="text-white">
                             <h2 class="text-3xl sm:text-3xl md:text-4xl font-bold mb-4 max-w-96">
                                 {{ slide.title }}

@@ -82,34 +82,37 @@ const props = defineProps({
     itemClass: {
         type: String,
         default: "flex items-center gap-3"
+    },
+    limit: {
+        type: Number,
+        required: false
     }
-
 })
 
-const servicesToRender = props.services ?? defaultServices;
+const servicesToRender = (props.services ?? defaultServices).slice(0, props.limit || undefined)
 </script>
 
 <template>
     <section :class="sectionClass">
         <div :class="containerClass">
             <div :class="gridClass">
-                <div v-for="service in servicesToRender" :key="service.title" :class="itemClass">
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                        :class="service.iconBg || 'bg-primary-100'">
-                        <div :class="service.iconColor || 'text-primary-600'" v-html="service.svg" />
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900 text-sm">
-                            {{ service.title }}
-                        </h4>
-                        <p class="text-gray-500 text-xs font-medium">
-                            {{ service.desc }}
-                        </p>
-                    </div>
+                <div v-for="(service, i) in servicesToRender" :key="service.title || i" :class="itemClass">
+                    <slot name="item" :service="service">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                            :class="service.iconBg || 'bg-primary-100'">
+                            <div :class="service.iconColor || 'text-primary-600'" v-html="service.svg" />
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900 text-sm">
+                                {{ service.title }}
+                            </h4>
+                            <p class="text-gray-500 text-xs font-medium">
+                                {{ service.desc }}
+                            </p>
+                        </div>
+                    </slot>
                 </div>
             </div>
         </div>
     </section>
 </template>
-
-<style scoped></style>

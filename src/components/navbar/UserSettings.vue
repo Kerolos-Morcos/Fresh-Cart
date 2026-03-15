@@ -54,8 +54,8 @@ onClickOutside(dropdownRef, () => isOpen.value = false)
                             </svg>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-sm font-semibold text-gray-800 truncate">kero</p>
-                            <p class="text-xs text-gray-400 truncate">keroz@gmail.com</p>
+                            <p class="text-sm font-semibold text-gray-800 truncate">{{ authStore.user?.name }}</p>
+                            <p class="text-xs text-gray-400 truncate">{{ authStore.user?.email }}</p>
                         </div>
                     </div>
                 </div>
