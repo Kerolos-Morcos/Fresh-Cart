@@ -26,7 +26,7 @@ onMounted(() => {
         <div class="container mx-auto px-4">
             <SpecialSectionTitle :show-line="true" :section-title="'Featured'" :special-title="'Products'" />
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                <ProductCard :data="data" />
+                <ProductCard v-for="product in data" :key="product.id" :product="product" />
             </div>
         </div>
     </section>

@@ -3,10 +3,11 @@ import Breadcrumb from '@/components/Breadcrumb.vue';
 import ProductDetailsCarousel from '@/components/productDetails/ProductDetailsCarousel.vue';
 import ProductDetailsInfo from '@/components/productDetails/ProductDetailsInfo.vue';
 import { useAPI } from '@/composables/useAPI';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useBreadcrumb } from '@/composables/useBreadcrumb';
 import ProductDetailsTabs from '@/components/productDetails/ProductDetailsTabs.vue';
+import SimilarProducts from '@/components/productDetails/SimilarProducts.vue';
 
 
 const route = useRoute();
@@ -40,6 +41,10 @@ onMounted(() => {
     fetchProductById();
 });
 
+watch(() => route.params.id, () => {
+    fetchProductById()
+})
+
 const images = computed(() => data.value?.images || [])
 </script>
 
@@ -52,6 +57,8 @@ const images = computed(() => data.value?.images || [])
                 <ProductDetailsInfo :data="data" />
             </div>
             <ProductDetailsTabs :data="data" />
+            <!-- Also you might like -->
+            <SimilarProducts v-if="data?.category?._id" :categoryId="data?.category?._id" :productId="data?._id" />
         </div>
     </div>
 </template>

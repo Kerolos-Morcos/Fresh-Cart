@@ -37,7 +37,7 @@ defineProps(['data']);
                     Save {{ Math.round((1 - data.priceAfterDiscount / data.price) * 100) }}%
                 </span>
             </div>
-            <div class="flex items-center gap-2 mb-6">
+            <div v-if="data?.quantity > 0" class="flex items-center gap-2 mb-6">
                 <span class="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full bg-green-50 text-green-700">
                     <span class="w-2 h-2 rounded-full bg-green-500"></span>
                     In Stock
