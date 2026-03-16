@@ -1,14 +1,17 @@
 <script setup>
 import { useAPI } from '@/composables/useAPI';
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import SpecialSectionTitle from '../SpecialSectionTitle.vue';
+import HomeCategoriesSkeleton from '../skeleton/HomeCategoriesSkeleton.vue';
 
 const { fetchData, error, data } = useAPI();
-
+const loading = ref(false);
 async function fetchCategories() {
+    loading.value = true
     const res = await fetchData({ url: "/v1/categories" });
     if (res) {
         data.value = res.data;
+        loading.value = false
         return res.data;
     } else if (error.value) {
         console.error("Error fetching categories:", error.value);
@@ -37,18 +40,19 @@ onMounted(() => {
                     </svg>
                 </RouterLink>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <RouterLink v-for="category in data" :key="category.id"
-                    class="bg-white rounded-lg p-4 text-center shadow-sm hover:shadow-md transition group cursor-pointer"
-                    :to="`/categories/${category._id}`">
-                    <div
-                        class="h-20 w-20 overflow-hidden bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-primary-200 transition">
-                        <img :alt="category.name" loading="lazy" class="w-[300] h-[300] object-cover"
-                            :src="category.image">
-                    </div>
-                    <h3 class="font-medium">{{ category.name }}</h3>
-                </RouterLink>
-            </div>
+            <HomeCategoriesSkeleton :loading="loading">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <RouterLink v-for="category in data" :key="category.id"
+                        class="bg-white rounded-lg p-4 text-center shadow-sm hover:shadow-md transition group cursor-pointer"
+                        :to="`/categories/${category._id}`">
+                        <div
+                            class="h-20 w-20 overflow-hidden bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-primary-200 transition">
+                            <img :alt="category.name" class="w-[300] h-[300] object-cover" :src="category.image">
+                        </div>
+                        <h3 class="font-medium">{{ category.name }}</h3>
+                    </RouterLink>
+                </div>
+            </HomeCategoriesSkeleton>
         </div>
     </section>
 </template>
