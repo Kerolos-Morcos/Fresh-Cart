@@ -8,15 +8,18 @@ import { useRoute } from 'vue-router';
 import { useBreadcrumb } from '@/composables/useBreadcrumb';
 import ProductDetailsTabs from '@/components/productDetails/ProductDetailsTabs.vue';
 import SimilarProducts from '@/components/productDetails/SimilarProducts.vue';
+import ProductDetailsSkeleton from '@/components/skeleton/ProductDetailsSkeleton.vue';
 
-
+const loading = ref(false)
 const route = useRoute();
 const { fetchData, error, data } = useAPI();
 const { setBreadcrumb } = useBreadcrumb();
 
 async function fetchProductById() {
+    loading.value = true
     const res = await fetchData({ url: `/v1/products/${route.params.id}` });
     if (res) {
+        loading.value = false
         data.value = res.data;
         setBreadcrumb([
             {
@@ -49,18 +52,19 @@ const images = computed(() => data.value?.images || [])
 </script>
 
 <template>
-    <Breadcrumb />
-    <div class="py-6">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col lg:flex-row gap-8">
-                <ProductDetailsCarousel :images="images" />
-                <ProductDetailsInfo :data="data" />
+    <ProductDetailsSkeleton :loading="loading || !data">
+        <Breadcrumb />
+        <div class="py-6">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <ProductDetailsCarousel :images="images" />
+                    <ProductDetailsInfo :data="data" />
+                </div>
+                <ProductDetailsTabs :data="data" />
+                <SimilarProducts v-if="data?.category?._id" :categoryId="data?.category?._id" :productId="data?._id" />
             </div>
-            <ProductDetailsTabs :data="data" />
-            <!-- Also you might like -->
-            <SimilarProducts v-if="data?.category?._id" :categoryId="data?.category?._id" :productId="data?._id" />
         </div>
-    </div>
+    </ProductDetailsSkeleton>
 </template>
 
 <style scoped></style>
