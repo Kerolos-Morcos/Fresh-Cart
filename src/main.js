@@ -15,6 +15,7 @@ const pinia = createPinia();
 app.use(Vue3Toastify, {
   autoClose: 3000,
   position: "top-right",
+  pauseOnHover: false,
 });
 
 app.use(pinia);

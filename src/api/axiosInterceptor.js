@@ -1,3 +1,4 @@
+import toastMessage from "@/helpers/toastMessage";
 import axios from "axios";
 
 const apiClient = axios.create({
@@ -28,6 +29,11 @@ apiClient.interceptors.response.use(
     return res;
   },
   (err) => {
+    const message =
+      err?.response?.data?.message ||
+      err?.response?.data?.msg ||
+      "Something went wrong";
+    toastMessage(message, "error");
     return Promise.reject(err);
   },
 );

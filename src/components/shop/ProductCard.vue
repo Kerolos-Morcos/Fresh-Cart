@@ -1,9 +1,9 @@
 <script setup>
 import RatingStars from '../RatingStars.vue';
 import ProductActionButtons from './ProductActionButtons.vue';
+import ProductAddToCardButton from './ProductAddToCardButton.vue';
 
-defineProps(['product', 'lineClamp']);
-
+const { product, lineClamp } = defineProps(['product', 'lineClamp']);
 </script>
 
 <template>
@@ -39,16 +39,7 @@ defineProps(['product', 'lineClamp']);
                     <span class="text-sm text-gray-400 line-through ml-2" v-show="product.priceAfterDiscount">{{
                         product.price }} EGP</span>
                 </div>
-                <button
-                    class="cursor-pointer h-9 w-9 rounded-full flex items-center justify-center transition-all duration-300 bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-70"
-                    tabindex="0">
-                    <svg data-prefix="fas" data-icon="plus" class="svg-inline--fa fa-plus w-4" role="img"
-                        viewBox="0 0 448 512" aria-hidden="true">
-                        <path fill="currentColor"
-                            d="M256 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 160-160 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l160 0 0 160c0 17.7 14.3 32 32 32s32-14.3 32-32l0-160 160 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-160 0 0-160z">
-                        </path>
-                    </svg>
-                </button>
+                <ProductAddToCardButton :product="product" />
             </div>
         </div>
     </div>

@@ -7,10 +7,10 @@ import BasePasswordField from '../form/BasePasswordField.vue';
 import BaseCheckBox from '../form/BaseCheckBox.vue';
 import SubmitButton from '../register/SubmitButton.vue';
 import LoginInputsStaticData from './LoginInputsStaticData.vue';
-import { toast } from 'vue3-toastify';
 import { loginSchema } from '@/validations/loginSchema';
 import { useAuthStore } from '@/stores/authStore';
 import { useAPI } from '@/composables/useAPI';
+import toastMessage from '@/helpers/toastMessage';
 
 const authStore = useAuthStore();
 const { fetchData, error, isLoading } = useAPI();
@@ -27,22 +27,11 @@ async function loginUser(body, { resetForm }) {
         const user = res.user;
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
-        console.log(res);
         resetForm();
         authStore.token = token;
         authStore.user = user;
         router.push({ name: "home" }).then(() => {
-            toast.success("Logged in successfully!", {
-                autoClose: 2000,
-                pauseOnHover: false,
-                closeOnClick: true,
-            });
-        });
-    } else if (error.value) {
-        toast.error(error.value.msg, {
-            autoClose: 3000,
-            pauseOnHover: false,
-            closeOnClick: true,
+            toastMessage('Logged in successfully!', 'success');
         });
     }
 }

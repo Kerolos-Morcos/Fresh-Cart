@@ -2,14 +2,13 @@
 import { registerSchema, passwordValue } from "../../validations/registerSchema";
 import RegisterWithMedia from "./RegisterWithMedia.vue";
 import { Form } from "vee-validate";
-import { ref } from "vue";
-import { toast } from 'vue3-toastify';
 import SubmitButton from "./SubmitButton.vue";
 import { useRouter } from "vue-router";
 import BaseField from "../form/BaseField.vue";
 import BaseCheckBox from "../form/BaseCheckBox.vue";
 import BasePasswordField from "../form/BasePasswordField.vue";
 import { useAPI } from "@/composables/useAPI";
+import toastMessage from "@/helpers/toastMessage";
 
 const router = useRouter();
 const { fetchData, error, isLoading } = useAPI();
@@ -23,18 +22,8 @@ async function registerUser(body, { resetForm }) {
     if (res) {
         resetForm();
         router.replace("/login").then(() => {
-            toast.success('Account Created Successfully!', {
-                autoClose: 2000,
-                pauseOnHover: false,
-                closeOnClick: true,
-            });
+            toastMessage('Account Created Successfully!', 'success');
         })
-    } else if (error.value) {
-        toast.error(error.value.msg, {
-            autoClose: 3000,
-            pauseOnHover: false,
-            closeOnClick: true,
-        });
     }
 }
 </script>
