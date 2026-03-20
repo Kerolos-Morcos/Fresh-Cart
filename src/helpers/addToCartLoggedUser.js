@@ -5,11 +5,14 @@ async function addToCartLoggedUser(product, fetchData, data, showSuccess) {
       method: "post",
       data: { productId: product.id },
     });
-
     if (res) {
       data.value = res.data;
       showSuccess();
-      return { success: true, message: "Successfully added to cart!" };
+      return {
+        success: true,
+        message: "Successfully added to cart!",
+        cartData: res,
+      };
     }
   } catch (err) {
     return {

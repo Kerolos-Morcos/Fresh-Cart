@@ -1,9 +1,6 @@
 <script setup>
-import { useRoute } from "vue-router";
-import { computed } from "vue";
 import { useBreadcrumb } from "@/composables/useBreadcrumb";
 
-const route = useRoute();
 const { breadcrumb } = useBreadcrumb();
 </script>
 

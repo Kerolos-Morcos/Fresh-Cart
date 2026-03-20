@@ -1,16 +1,15 @@
 function addToCartGuest(product, showSuccess) {
-  const existingCart = localStorage.getItem("guestCart");
-
-  if (existingCart) {
-    const cartItems = [...JSON.parse(existingCart), product];
-    localStorage.setItem("guestCart", JSON.stringify(cartItems));
-  } else {
-    localStorage.setItem("guestCart", JSON.stringify([product]));
+  const existingCart = JSON.parse(localStorage.getItem("guestCart") || "[]");
+  const alreadyExists = existingCart.some((p) => p.id === product.id);
+  if (!alreadyExists) {
+    existingCart.push(product);
+    localStorage.setItem("guestCart", JSON.stringify(existingCart));
   }
   showSuccess();
   return {
     success: true,
-    message: "Successfully added to cart!",
+    message: alreadyExists ? "Already in cart!" : "Successfully added to cart!",
+    cartData: existingCart,
   };
 }
 

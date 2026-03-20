@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
+import { useCartStore } from "./cartStore";
 
 export const useAuthStore = defineStore("authStore", () => {
   const router = useRouter();
@@ -24,9 +25,14 @@ export const useAuthStore = defineStore("authStore", () => {
   }
 
   //   Logout
+  const cartStore = useCartStore();
   function logout() {
     token.value = null;
     user.value = null;
+    cartStore.cartData = [];
+    cartStore.numOfCartItems = 0;
+    cartStore.totalCartPrice = 0;
+    cartStore.cartId = null;
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     router.push({ name: "login" });

@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <div class="min-h-screen flex items-center justify-center px-4">
+    <div class="py-8 flex items-center justify-center px-4">
         <div class="max-w-md text-center">
             <div class="relative mb-8">
                 <div class="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center mx-auto">

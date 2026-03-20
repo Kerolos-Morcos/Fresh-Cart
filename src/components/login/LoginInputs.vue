@@ -1,7 +1,7 @@
 <script setup>
 import { Form } from 'vee-validate';
 import LoginInputFeatures from './LoginInputFeatures.vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import BaseField from '../form/BaseField.vue';
 import BasePasswordField from '../form/BasePasswordField.vue';
 import BaseCheckBox from '../form/BaseCheckBox.vue';
@@ -13,8 +13,9 @@ import { useAPI } from '@/composables/useAPI';
 import toastMessage from '@/helpers/toastMessage';
 
 const authStore = useAuthStore();
-const { fetchData, error, isLoading } = useAPI();
+const { fetchData, isLoading } = useAPI();
 const router = useRouter();
+const route = useRoute();
 
 async function loginUser(body, { resetForm }) {
     const res = await fetchData({
@@ -30,7 +31,8 @@ async function loginUser(body, { resetForm }) {
         resetForm();
         authStore.token = token;
         authStore.user = user;
-        router.push({ name: "home" }).then(() => {
+        const redirect = route.query.redirect || "/";
+        router.push(redirect).then(() => {
             toastMessage('Logged in successfully!', 'success');
         });
     }

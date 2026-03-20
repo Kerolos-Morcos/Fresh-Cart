@@ -684,4 +684,111 @@
   .router-link-exact-active {
     color: var(--color-primary-600);
   }
+
+  .from-primary-50 {
+    --tw-gradient-from: var(--color-primary-50);
+  }
+
+  .from-primary-100 {
+    --tw-gradient-from: var(--color-primary-100);
+  }
+
+  .from-primary-200 {
+    --tw-gradient-from: var(--color-primary-200);
+  }
+
+  .from-primary-300 {
+    --tw-gradient-from: var(--color-primary-300);
+  }
+
+  .from-primary-400 {
+    --tw-gradient-from: var(--color-primary-400);
+  }
+  .from-primary-500 {
+    --tw-gradient-from: var(--color-primary-500);
+  }
+
+  .from-primary-600 {
+    --tw-gradient-from: var(--color-primary-600);
+  }
+
+  .to-primary-700 {
+    --tw-gradient-to: var(--color-primary-700);
+  }
+
+  .to-primary-800 {
+    --tw-gradient-to: var(--color-primary-800);
+  }
+
+  .to-primary-900 {
+    --tw-gradient-to: var(--color-primary-900);
+  }
+
+  .hover\:bg-primary-50\/50:hover {
+    background-color: color-mix(
+      in oklab,
+      var(--color-primary-50) 50%,
+      transparent
+    );
+  }
+  .hover\:from-primary-50:hover {
+    --tw-gradient-from: var(--color-primary-50);
+  }
+
+  .hover\:from-primary-100:hover {
+    --tw-gradient-from: var(--color-primary-100);
+  }
+
+  .hover\:from-primary-200:hover {
+    --tw-gradient-from: var(--color-primary-200);
+  }
+
+  .hover\:from-primary-300:hover {
+    --tw-gradient-from: var(--color-primary-300);
+  }
+
+  .hover\:from-primary-400:hover {
+    --tw-gradient-from: var(--color-primary-400);
+  }
+
+  .hover\:from-primary-500:hover {
+    --tw-gradient-from: var(--color-primary-500);
+  }
+
+  .hover\:from-primary-600:hover {
+    --tw-gradient-from: var(--color-primary-600);
+  }
+  .hover\:from-primary-700:hover {
+    --tw-gradient-from: var(--color-primary-700);
+  }
+
+  .hover\:to-primary-800:hover {
+    --tw-gradient-to: var(--color-primary-800);
+  }
+
+  .hover\:to-primary-900:hover {
+    --tw-gradient-to: var(--color-primary-900);
+  }
+
+  .hover\:from-primary-700:hover {
+    --tw-gradient-from: var(--color-primary-700);
+  }
+
+  .hover\:to-primary-800:hover {
+    --tw-gradient-to: var(--color-primary-800);
+  }
+
+  .shadow-lg {
+    box-shadow:
+      0 10px 15px -3px var(--tw-shadow-color, rgba(0, 0, 0, 0.1)),
+      0 4px 6px -2px var(--tw-shadow-color, rgba(0, 0, 0, 0.05));
+  }
+
+  .shadow-primary-600\/20 {
+    --tw-shadow-color: color-mix(
+      in oklab,
+      var(--color-primary-600) 20%,
+      transparent
+    );
+  }
 }
