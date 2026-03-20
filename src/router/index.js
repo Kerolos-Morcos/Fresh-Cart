@@ -91,6 +91,12 @@ const router = createRouter({
           name: "help",
           component: () => import("../pages/HelpCenter.vue"),
         },
+        {
+          path: "checkout",
+          name: "checkout",
+          component: () => import("../pages/Checkout.vue"),
+          meta: { requiresAuth: true, breadcrumb: "Checkout" },
+        },
       ],
     },
     // For Not Displaying Nav & Footer

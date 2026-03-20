@@ -9,7 +9,6 @@ export const useCartStore = defineStore("cartStore", () => {
   const numOfCartItems = ref(0);
   const cartId = ref(null);
   const totalCartPrice = ref(0);
-  const isMerging = ref(false);
 
   const authStore = useAuthStore();
   const { fetchData, isLoading } = useAPI();
@@ -58,7 +57,6 @@ export const useCartStore = defineStore("cartStore", () => {
   }
 
   async function mergeGuestCart() {
-    isMerging.value = true;
     const guestCart = JSON.parse(localStorage.getItem("guestCart") || "[]");
     if (guestCart.length === 0) {
       await getUserCart();
@@ -73,7 +71,6 @@ export const useCartStore = defineStore("cartStore", () => {
     }
     localStorage.removeItem("guestCart");
     await getUserCart();
-    isMerging.value = false;
   }
 
   watch(
@@ -100,6 +97,5 @@ export const useCartStore = defineStore("cartStore", () => {
     mergeGuestCart,
     loadGuestCart,
     resetCart,
-    isMerging,
   };
 });

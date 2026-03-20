@@ -97,7 +97,7 @@ const servicesToRender = (props.services ?? defaultServices).slice(0, props.limi
         <div :class="containerClass">
             <div :class="gridClass">
                 <div v-for="(service, i) in servicesToRender" :key="service.title || i" :class="itemClass">
-                    <slot name="item" :service="service">
+                    <slot name="item" :service="service" :index="i">
                         <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
                             :class="service.iconBg || 'bg-primary-100'">
                             <div :class="service.iconColor || 'text-primary-600'" v-html="service.svg" />

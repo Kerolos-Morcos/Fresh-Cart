@@ -2,8 +2,13 @@
 import { useCartStore } from '@/stores/cartStore';
 import FreeShipping from './FreeShipping.vue';
 import PaidShipping from './PaidShipping.vue';
+import toastMessage from '@/helpers/toastMessage';
 
 const cartStore = useCartStore();
+
+function applyPromoCode() {
+    toastMessage('No Promo Codes Available!', 'info');
+}
 </script>
 
 <template>
@@ -33,7 +38,7 @@ const cartStore = useCartStore();
                     <div class="flex justify-between text-gray-600">
                         <span>Shipping</span>
                         <span class="font-medium text-green-600">{{ cartStore?.totalCartPrice > 500 ? 'Free' : '50 EGP'
-                        }}</span>
+                            }}</span>
                     </div>
                     <div class="border-t border-dashed border-gray-200 pt-3 mt-3">
                         <div class="flex justify-between items-baseline">
@@ -46,7 +51,7 @@ const cartStore = useCartStore();
                         </div>
                     </div>
                 </div>
-                <button
+                <button @click="applyPromoCode"
                     class="cursor-pointer w-full flex items-center justify-center gap-2 py-3 border border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50/50 transition-all">
                     <svg data-prefix="fas" data-icon="tag" class="svg-inline--fa fa-tag w-3.5" role="img"
                         viewBox="0 0 512 512" aria-hidden="true">
