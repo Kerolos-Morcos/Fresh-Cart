@@ -1,5 +1,5 @@
 <script setup>
-
+defineProps(['title']);
 </script>
 
 <template>
@@ -15,7 +15,7 @@
                 </svg>
             </div>
         </div>
-        <p class="text-gray-600 mt-6 font-medium">Loading your cart...</p>
+        <p class="text-gray-600 mt-6 font-medium">Loading {{ title }}...</p>
         <p class="text-gray-400 text-sm mt-1">Just a moment</p>
     </div>
 </template>

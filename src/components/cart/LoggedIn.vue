@@ -3,6 +3,7 @@ import { useCartStore } from '@/stores/cartStore';
 import FreeShipping from './FreeShipping.vue';
 import PaidShipping from './PaidShipping.vue';
 import toastMessage from '@/helpers/toastMessage';
+import TotalPriceShippingData from './TotalPriceShippingData.vue';
 
 const cartStore = useCartStore();
 
@@ -30,27 +31,7 @@ function applyPromoCode() {
             <div class="p-6 space-y-5">
                 <FreeShipping v-if="cartStore?.totalCartPrice > 500" />
                 <PaidShipping v-else :totalCartPrice="cartStore?.totalCartPrice" />
-                <div class="space-y-3">
-                    <div class="flex justify-between text-gray-600">
-                        <span>Subtotal</span>
-                        <span class="font-medium text-gray-900">{{ cartStore?.totalCartPrice }} EGP</span>
-                    </div>
-                    <div class="flex justify-between text-gray-600">
-                        <span>Shipping</span>
-                        <span class="font-medium text-green-600">{{ cartStore?.totalCartPrice > 500 ? 'Free' : '50 EGP'
-                            }}</span>
-                    </div>
-                    <div class="border-t border-dashed border-gray-200 pt-3 mt-3">
-                        <div class="flex justify-between items-baseline">
-                            <span class="text-gray-900 font-semibold">Total</span>
-                            <div class="text-right">
-                                <span class="text-2xl font-bold text-gray-900">{{ cartStore?.totalCartPrice > 500 ?
-                                    cartStore?.totalCartPrice : cartStore?.totalCartPrice + 50 }}</span>
-                                <span class="text-sm text-gray-500 ml-1">EGP</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <TotalPriceShippingData :cartStore="cartStore" />
                 <button @click="applyPromoCode"
                     class="cursor-pointer w-full flex items-center justify-center gap-2 py-3 border border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50/50 transition-all">
                     <svg data-prefix="fas" data-icon="tag" class="svg-inline--fa fa-tag w-3.5" role="img"

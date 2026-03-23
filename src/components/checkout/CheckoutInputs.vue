@@ -1,13 +1,50 @@
 <script setup>
+import { shippingSchema } from '@/validations/checkoutSchema';
 import CheckoutTitle from './CheckoutTitle.vue';
 import DeliveryInfo from './DeliveryInfo.vue';
 import OrderSummary from './OrderSummary.vue';
 import PaymentMethod from './PaymentMethod.vue';
+import { ErrorMessage, Field, Form } from 'vee-validate';
+import { useAPI } from '@/composables/useAPI';
+import { inject } from 'vue';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
+const cartStore = inject('cartStore');
+const { fetchData, isLoading } = useAPI();
+const router = useRouter();
+
+const isSelectedMethod = ref('cash');
+function setSelectedMethod(method) {
+    isSelectedMethod.value = method
+}
+
+async function onShippingSubmit(values) {
+    const appURL = window.location.origin;
+    const cartId = cartStore?.cartId;
+    if (isSelectedMethod.value === 'cash') {
+        await fetchData({
+            url: `/v1/orders/${cartId}`,
+            method: "post",
+            data: values
+        });
+        router.push({ name: 'orders' });
+    } else {
+        const data = await fetchData({
+            url: `/v1/orders/checkout-session/${cartId}?url=${appURL}`,
+            method: "post",
+            data: values
+        });
+        if (data) {
+            const url = data.session.url
+            window.location.href = url
+        }
+    }
+}
 </script>
 
 <template>
-    <form>
+    <Form :validation-schema="shippingSchema" @submit="onShippingSubmit">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-6">
                 <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
@@ -39,10 +76,11 @@ import PaymentMethod from './PaymentMethod.vue';
                                         </path>
                                     </svg>
                                 </div>
-                                <input id="city"
+                                <Field id="city" as="input"
                                     class="w-full px-4 py-3.5 pl-14 border-2 rounded-xl transition-all inputStyle"
-                                    placeholder="e.g. Cairo, Alexandria, Giza" type="text" name="city">
+                                    placeholder="e.g. Cairo, Alexandria, Giza" type="text" name="city" />
                             </div>
+                            <ErrorMessage name="city" class="errorMessage text-xs text-red-500 mt-2" />
                         </div>
                         <div>
                             <label for="details" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -60,11 +98,12 @@ import PaymentMethod from './PaymentMethod.vue';
                                         </path>
                                     </svg>
                                 </div>
-                                <textarea id="details" rows="3"
+                                <Field id="details" rows="3" as="textarea"
                                     class="w-full px-4 py-3.5 pl-14 border-2 rounded-xl transition-all resize-none inputStyle"
-                                    placeholder="Street name, building number, floor, apartment..."
-                                    name="details"></textarea>
+                                    placeholder="Street name, building number, floor, apartment..." name="details">
+                                </Field>
                             </div>
+                            <ErrorMessage name="details" class="errorMessage text-xs text-red-500 mt-2" />
                         </div>
                         <div>
                             <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -80,21 +119,23 @@ import PaymentMethod from './PaymentMethod.vue';
                                             d="M160.2 25C152.3 6.1 131.7-3.9 112.1 1.4l-5.5 1.5c-64.6 17.6-119.8 80.2-103.7 156.4 37.1 175 174.8 312.7 349.8 349.8 76.3 16.2 138.8-39.1 156.4-103.7l1.5-5.5c5.4-19.7-4.7-40.3-23.5-48.1l-97.3-40.5c-16.5-6.9-35.6-2.1-47 11.8l-38.6 47.2C233.9 335.4 177.3 277 144.8 205.3L189 169.3c13.9-11.3 18.6-30.4 11.8-47L160.2 25z">
                                         </path>
                                     </svg>
-                                </div><input id="phone"
+                                </div>
+                                <Field id="phone" as="input"
                                     class="w-full px-4 py-3.5 pl-14 border-2 rounded-xl transition-all inputStyle"
-                                    placeholder="01xxxxxxxxx" type="tel" name="phone">
+                                    placeholder="01xxxxxxxxx" type="tel" name="phone" />
                                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400">
                                     Egyptian numbers only
                                 </span>
                             </div>
+                            <ErrorMessage name="phone" class="errorMessage text-xs text-red-500 mt-2" />
                         </div>
                     </div>
                 </div>
-                <PaymentMethod />
+                <PaymentMethod :isSelectedMethod="isSelectedMethod" @setSelectedMethod="setSelectedMethod" />
             </div>
-            <OrderSummary />
+            <OrderSummary :isSelectedMethod="isSelectedMethod" :isLoading="isLoading" />
         </div>
-    </form>
+    </Form>
 </template>
 
 <style scoped>

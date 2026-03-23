@@ -1,8 +1,10 @@
 <script setup>
+import { inject } from 'vue';
 import SpecialServices from '../footer/SpecialServices.vue';
 import CheckoutProducts from './CheckoutProducts.vue';
 import CheckoutTitle from './CheckoutTitle.vue';
-import CheckoutTotalPrice from './CheckoutTotalPrice.vue';
+import TotalPriceShippingData from '../cart/TotalPriceShippingData.vue';
+import CheckoutSubmitBtn from './CheckoutSubmitBtn.vue';
 
 const customServices = [
     {
@@ -36,12 +38,15 @@ const customServices = [
                         </svg>`
     }
 ]
+
+const cartStore = inject('cartStore');
+const props = defineProps(['isSelectedMethod', 'isLoading']);
 </script>
 
 <template>
     <div class="lg:col-span-1">
         <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm sticky top-4">
-            <CheckoutTitle title="Order Summary" subtitle="2 items">
+            <CheckoutTitle title="Order Summary" :subtitle="`${cartStore.cartData.length} items`">
                 <template #icon>
                     <svg data-prefix="fas" data-icon="bag-shopping" class="w-4 svg-inline--fa fa-bag-shopping"
                         role="img" viewBox="0 0 448 512" aria-hidden="true">
@@ -52,20 +57,10 @@ const customServices = [
                 </template>
             </CheckoutTitle>
             <div class="p-5">
-                <CheckoutProducts />
+                <CheckoutProducts :cartProducts="cartStore.cartData" />
                 <hr class="border-gray-100 my-4">
-                <CheckoutTotalPrice />
-                <button type="submit"
-                    class="cursor-pointer w-full mt-6 text-white py-4 rounded-xl font-bold bg-primary-600 hover:bg-primary-700 duration-300 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary-600/20 active:scale-[0.98]">
-                    <!-- disabled:opacity-70 disabled:cursor-not-allowed -->
-                    <svg data-prefix="fas" data-icon="box" class="w-4 svg-inline--fa fa-box" role="img"
-                        viewBox="0 0 448 512" aria-hidden="true">
-                        <path fill="currentColor"
-                            d="M369.4 128l-34.3-48-222.1 0-34.3 48 290.7 0zM0 148.5c0-13.3 4.2-26.3 11.9-37.2L60.9 42.8C72.9 26 92.3 16 112.9 16l222.1 0c20.7 0 40.1 10 52.1 26.8l48.9 68.5c7.8 10.9 11.9 23.9 11.9 37.2L448 416c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 148.5z">
-                        </path>
-                    </svg>
-                    Place Order
-                </button>
+                <TotalPriceShippingData :cartStore="cartStore" :isCheckout="true" />
+                <CheckoutSubmitBtn :isSelectedMethod="props.isSelectedMethod" :isLoading="props.isLoading" />
                 <SpecialServices :services="customServices" gridClass="flex items-center justify-center gap-2.5"
                     :section-class="'bg-transparent'" :container-class="'mt-4 border-t border-gray-100 pt-3'">
                     <template #item="{ service, index }">

@@ -28,7 +28,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <CartLoader v-if="cartStore.isLoading" />
+    <CartLoader v-if="cartStore.isLoading" :title="'your cart'" />
     <EmptyCart v-else-if="cartStore.numOfCartItems === 0" />
     <div v-else class="bg-gray-50 min-h-screen py-8">
         <Breadcrumb class="pt-0! mb-2.5" />

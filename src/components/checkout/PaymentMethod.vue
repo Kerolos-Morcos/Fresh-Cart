@@ -1,8 +1,11 @@
 <script setup>
+import { ref } from 'vue';
 import CheckoutTitle from './CheckoutTitle.vue';
 import PaymentCards from './PaymentCards.vue';
 import PaymentSecurity from './PaymentSecurity.vue';
 
+const props = defineProps(['isSelectedMethod']);
+const emit = defineEmits(['setSelectedMethod']);
 </script>
 
 <template>
@@ -18,10 +21,15 @@ import PaymentSecurity from './PaymentSecurity.vue';
             </template>
         </CheckoutTitle>
         <div class="p-6 space-y-4">
-            <button type="button"
-                class="cursor-pointer w-full p-5 rounded-xl border-2 transition-all flex items-center gap-4 group border-primary-500 bg-linear-to-r shadow-sm"
+            <button type="button" @click="emit('setSelectedMethod', 'cash')"
+                class="cursor-pointer w-full p-5 rounded-xl border-2 transition-all flex items-center gap-4 group"
+                :class="props.isSelectedMethod === 'cash'
+                    ? 'border-primary-500 bg-linear-to-r shadow-sm'
+                    : 'border-gray-200 hover:border-primary-200 hover:bg-gray-50'"
                 style="--from: var(--color-primary-50); --to: var(--color-emerald-50);">
-                <div class="w-14 h-14 rounded-xl flex items-center justify-center transition-all bg-linear-to-br text-white shadow-lg shadow-primary-500/30"
+                <div class="w-14 h-14 rounded-xl flex items-center justify-center transition-all" :class="props.isSelectedMethod === 'cash'
+                    ? 'bg-linear-to-br text-white shadow-lg shadow-primary-500/30'
+                    : 'bg-gray-100 text-gray-400'"
                     style="--from: var(--color-primary-500); --to: var(--color-primary-600);">
                     <svg data-prefix="fas" data-icon="money-bill" class="w-5 svg-inline--fa fa-money-bill text-xl"
                         role="img" viewBox="0 0 512 512" aria-hidden="true">
@@ -31,25 +39,35 @@ import PaymentSecurity from './PaymentSecurity.vue';
                     </svg>
                 </div>
                 <div class="flex-1 text-left">
-                    <h3 class="font-bold text-green-700">Cash on Delivery</h3>
+                    <h3 class="font-bold"
+                        :class="props.isSelectedMethod === 'cash' ? 'text-green-700' : 'text-gray-900'">Cash
+                        on
+                        Delivery</h3>
                     <p class="text-sm text-gray-500 mt-0.5 font-medium">
                         Pay when your order arrives at your doorstep
                     </p>
                 </div>
-                <div
-                    class="w-7 h-7 rounded-full flex items-center justify-center transition-all bg-primary-600 text-white">
-                    <svg data-prefix="fas" data-icon="check" class="w-3 svg-inline--fa fa-check text-xs" role="img"
-                        viewBox="0 0 448 512" aria-hidden="true">
+                <div class="w-7 h-7 rounded-full flex items-center justify-center transition-all" :class="props.isSelectedMethod === 'cash'
+                    ? 'bg-primary-600 text-white'
+                    : 'border-2 border-gray-200'">
+                    <svg v-if="props.isSelectedMethod === 'cash'" data-prefix="fas" data-icon="check"
+                        class="w-3 svg-inline--fa fa-check text-xs" role="img" viewBox="0 0 448 512" aria-hidden="true">
                         <path fill="currentColor"
                             d="M434.8 70.1c14.3 10.4 17.5 30.4 7.1 44.7l-256 352c-5.5 7.6-14 12.3-23.4 13.1s-18.5-2.7-25.1-9.3l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l101.5 101.5 234-321.7c10.4-14.3 30.4-17.5 44.7-7.1z">
                         </path>
                     </svg>
                 </div>
             </button>
-            <button type="button"
-                class="cursor-pointer w-full p-5 rounded-xl border-2 transition-all flex items-center gap-4 group border-gray-200 hover:border-primary-200 hover:bg-gray-50">
-                <div
-                    class="w-14 h-14 rounded-xl flex items-center justify-center transition-all bg-gray-100 text-gray-400 group-hover:bg-gray-200">
+            <button type="button" @click="emit('setSelectedMethod', 'card')"
+                class="cursor-pointer w-full p-5 rounded-xl border-2 transition-all flex items-center gap-4 group"
+                :class="props.isSelectedMethod === 'card'
+                    ? 'border-primary-500 bg-linear-to-r shadow-sm'
+                    : 'border-gray-200 hover:border-primary-200 hover:bg-gray-50'"
+                style="--from: var(--color-primary-50); --to: var(--color-emerald-50);">
+                <div class="w-14 h-14 rounded-xl flex items-center justify-center transition-all" :class="props.isSelectedMethod === 'card'
+                    ? 'bg-linear-to-br text-white shadow-lg shadow-primary-500/30'
+                    : 'bg-gray-100 text-gray-400'"
+                    style="--from: var(--color-primary-400); --to: var(--color-blue-600);">
                     <svg data-prefix="fas" data-icon="credit-card" class="w-5 svg-inline--fa fa-credit-card text-xl"
                         role="img" viewBox="0 0 512 512" aria-hidden="true">
                         <path fill="currentColor"
@@ -58,14 +76,24 @@ import PaymentSecurity from './PaymentSecurity.vue';
                     </svg>
                 </div>
                 <div class="flex-1 text-left">
-                    <h3 class="font-bold text-gray-900">Pay Online</h3>
+                    <h3 class="font-bold"
+                        :class="props.isSelectedMethod === 'card' ? 'text-green-700' : 'text-gray-900'">Pay
+                        Online
+                    </h3>
                     <p class="text-sm text-gray-500 mt-0.5 font-medium">
                         Secure payment with Credit/Debit Card via Stripe
                     </p>
                     <PaymentCards />
                 </div>
-                <div
-                    class="w-7 h-7 rounded-full flex items-center justify-center transition-all border-2 border-gray-200">
+                <div class="w-7 h-7 rounded-full flex items-center justify-center transition-all" :class="props.isSelectedMethod === 'card'
+                    ? 'bg-primary-600 text-white'
+                    : 'border-2 border-gray-200'">
+                    <svg v-if="props.isSelectedMethod === 'card'" data-prefix="fas" data-icon="check"
+                        class="w-3 svg-inline--fa fa-check text-xs" role="img" viewBox="0 0 448 512" aria-hidden="true">
+                        <path fill="currentColor"
+                            d="M434.8 70.1c14.3 10.4 17.5 30.4 7.1 44.7l-256 352c-5.5 7.6-14 12.3-23.4 13.1s-18.5-2.7-25.1-9.3l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l101.5 101.5 234-321.7c10.4-14.3 30.4-17.5 44.7-7.1z">
+                        </path>
+                    </svg>
                 </div>
             </button>
             <PaymentSecurity />

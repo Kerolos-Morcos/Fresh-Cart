@@ -21,7 +21,7 @@ const footerColumns = [
         title: "Account",
         links: [
             { label: "My Account", to: "/profile" },
-            { label: "Orders", to: "/profile/orders" },
+            { label: "Orders", to: "/orders" },
             { label: "Wishlist", to: "/wishlist" },
             { label: "Shopping Cart", to: "/cart" },
             { label: "Sign In", to: "/login" },

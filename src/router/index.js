@@ -61,12 +61,6 @@ const router = createRouter({
           component: () => import("../pages/Shop.vue"),
         },
         {
-          path: "orders",
-          name: "orders",
-          component: () => import("../pages/Orders.vue"),
-          meta: { requiresAuth: true },
-        },
-        {
           path: "wishlist",
           name: "wishlist",
           component: () => import("../pages/Wishlist.vue"),
@@ -96,6 +90,13 @@ const router = createRouter({
           name: "checkout",
           component: () => import("../pages/Checkout.vue"),
           meta: { requiresAuth: true, breadcrumb: "Checkout" },
+        },
+        {
+          path: "orders",
+          name: "orders",
+          component: () => import("../pages/Orders.vue"),
+          alias: "/allorders",
+          meta: { requiresAuth: true },
         },
       ],
     },
