@@ -1,8 +1,8 @@
 <script setup>
-import CartLoader from '@/components/cart/CartLoader.vue';
 import CheckoutHeader from '@/components/checkout/CheckoutHeader.vue';
 import CheckoutInputs from '@/components/checkout/CheckoutInputs.vue';
 import EmptyCheckout from '@/components/checkout/EmptyCheckout.vue';
+import ComponentLoader from '@/components/ComponentLoader.vue';
 import { useCartStore } from '@/stores/cartStore';
 import { onMounted, provide, ref } from 'vue';
 
@@ -20,7 +20,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <CartLoader v-if="isLoading" :title="'Checkout'" />
+    <ComponentLoader v-if="isLoading" :title="'Checkout'" />
     <EmptyCheckout v-else-if="cartStore.cartData.length === 0" />
     <div v-else class="bg-linear-to-b from-gray-50 to-white min-h-screen py-8">
         <div class="container mx-auto px-4">

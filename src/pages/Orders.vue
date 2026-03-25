@@ -1,5 +1,5 @@
 <script setup>
-import CartLoader from '@/components/cart/CartLoader.vue';
+import ComponentLoader from '@/components/ComponentLoader.vue';
 import DeliveryAddress from '@/components/orders/DeliveryAddress.vue';
 import OrderImageCover from '@/components/orders/OrderImageCover.vue';
 import OrderItems from '@/components/orders/OrderItems.vue';
@@ -43,7 +43,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <CartLoader v-if="isLoading" :title="'your orders'" />
+    <ComponentLoader v-if="isLoading" :title="'your orders'" />
     <EmptyOrders v-else-if="orders.length === 0" />
     <div v-else class="container mx-auto px-4 py-8">
         <OrdersHeader :ordersLength="orders.length" />

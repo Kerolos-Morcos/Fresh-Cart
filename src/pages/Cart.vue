@@ -6,8 +6,8 @@ import { useAuthStore } from '@/stores/authStore';
 import { onMounted } from 'vue';
 import CartDetails from '@/components/cart/CartDetails.vue';
 import EmptyCart from '@/components/cart/EmptyCart.vue';
-import CartLoader from '@/components/cart/CartLoader.vue';
 import { useCartStore } from '@/stores/cartStore';
+import ComponentLoader from '@/components/ComponentLoader.vue';
 
 const authStore = useAuthStore();
 const cartStore = useCartStore();
@@ -20,7 +20,9 @@ onMounted(() => {
         }
     ]);
     if (authStore.isLoggedUser) {
-        cartStore.getUserCart();
+        if (!cartStore.mergingGuestCart) {
+            cartStore.getUserCart();
+        }
     } else {
         cartStore.loadGuestCart();
     }
@@ -28,7 +30,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <CartLoader v-if="cartStore.isLoading" :title="'your cart'" />
+    <ComponentLoader v-if="cartStore.loadingCart || cartStore.mergingGuestCart" :title="'your cart'" />
     <EmptyCart v-else-if="cartStore.numOfCartItems === 0" />
     <div v-else class="bg-gray-50 min-h-screen py-8">
         <Breadcrumb class="pt-0! mb-2.5" />

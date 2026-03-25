@@ -3,6 +3,7 @@ import RatingStars from '@/components/RatingStars.vue';
 import SpecialServices from '@/components/footer/SpecialServices.vue';
 
 defineProps(['data']);
+
 </script>
 
 <template>
@@ -52,7 +53,7 @@ defineProps(['data']);
                 <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
                 <div class="flex items-center gap-4">
                     <div class="flex items-center border-2 border-gray-200 rounded-lg overflow-hidden">
-                        <button id="decrease-qty"
+                        <button id="decrease-qty" 
                             class="cursor-pointer px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-primary-600 transition disabled:opacity-50"
                             disabled="">
                             <svg data-prefix="fas" data-icon="minus" class="svg-inline--fa fa-minus w-2.5" role="img"
@@ -83,7 +84,8 @@ defineProps(['data']);
                     <span class="text-gray-600">Total
                         Price:
                     </span>
-                    <span class="text-2xl font-bold text-primary-600">149.00 EGP</span>
+                    <span class="text-2xl font-bold text-primary-600">{{ data?.priceAfterDiscount || data?.price }}
+                        EGP</span>
                 </div>
             </div>
             <div class="flex flex-col sm:flex-row gap-3 mb-6">

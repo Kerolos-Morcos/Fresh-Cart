@@ -3,28 +3,18 @@ import { useAuthStore } from '@/stores/authStore';
 import CartProductItem from './CartProductItem.vue';
 import LoggedIn from './LoggedIn.vue';
 import NotLoggedIn from './NotLoggedIn.vue';
-import { confirmClearCart, showSuccess } from '@/helpers/swalDeleteCartItem';
-import { useAPI } from '@/composables/useAPI';
+import { confirmClearCart, showSuccess } from '@/helpers/swalCustomAlerts';
 import { useCartStore } from '@/stores/cartStore';
 
-const { fetchData } = useAPI();
+
 const authStore = useAuthStore();
 const cartStore = useCartStore();
 
 async function clearAllCartItems() {
     const result = await confirmClearCart();
     if (!result.isConfirmed) return;
-    if (authStore.isLoggedUser) {
-        await fetchData({ url: "/v2/cart", method: "delete" });
-        cartStore.resetCart();
-    } else {
-        localStorage.removeItem("guestCart");
-        cartStore.resetCart();
-    }
-    await showSuccess({
-        title: "Cart Cleared!",
-        text: "All items have been removed"
-    });
+    await cartStore.clearCart();
+    await showSuccess({ title: "Cart Cleared!", text: "All items have been removed" });
 }
 </script>
 

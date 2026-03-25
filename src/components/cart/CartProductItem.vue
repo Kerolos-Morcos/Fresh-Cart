@@ -1,78 +1,31 @@
 <script setup>
-import { useAPI } from '@/composables/useAPI';
-import { confirmDelete, showSuccess } from '@/helpers/swalDeleteCartItem';
-import { useAuthStore } from '@/stores/authStore';
+import { confirmDelete, showSuccess } from '@/helpers/swalCustomAlerts';
 import LoadingSpinner from '../LoadingSpinner.vue';
-import { ref } from 'vue';
+import { computed } from 'vue';
 import { useCartStore } from '@/stores/cartStore';
 
 
 const { cartItem } = defineProps(['cartItem']);
-const item = cartItem.product;
-const sku = item?.id.toString().slice(18, 30).toUpperCase();
+const item = computed(() => cartItem?.product || cartItem);
+const sku = (item.value.id || item.value._id).toString().slice(18, 30).toUpperCase();
 const cartStore = useCartStore();
 
-const authStore = useAuthStore();
-const { fetchData } = useAPI();
-const loadingAdd = ref(false);
-const loadingRemove = ref(false);
 
 async function deleteCartItem() {
-    const result = await confirmDelete({
-        text: "Remove",
-        itemName: item.title
-    });
+    const result = await confirmDelete({ text: "Remove", itemName: item.value.title });
     if (!result.isConfirmed) return;
-    let data = null;
-    if (authStore.isLoggedUser) {
-        data = await fetchData({ url: `/v2/cart/${item._id}`, method: 'DELETE' });
-        cartStore.cartData = data?.data?.products || [];
-        cartStore.numOfCartItems = data?.numOfCartItems || 0;
-        cartStore.cartId = data?.data?._id || null;
-        cartStore.totalCartPrice = data?.data?.totalCartPrice || 0;
-    } else {
-        let cart = JSON.parse(localStorage.getItem("guestCart")) || [];
-        cart = cart.filter(p => p.id !== item._id);
-        localStorage.setItem("guestCart", JSON.stringify(cart));
-        cartStore.cartData = cart;
-        cartStore.numOfCartItems = cart.length;
-        cartStore.totalCartPrice = cart.reduce((sum, p) => sum + p.price * p.count, 0);
-    }
-    await showSuccess({
-        title: "Deleted!",
-        text: "Item removed from cart"
-    });
-}
-
-async function updateCount(count, type) {
-    if (type === "add") loadingAdd.value = true
-    if (type === "remove") loadingRemove.value = true;
-    if (count < 1) return;
-    try {
-        if (authStore.isLoggedUser) {
-            const data = await fetchData({ url: `/v2/cart/${item._id}`, method: 'put', data: { count } });
-            cartStore.cartData = data?.data?.products || [];
-            cartStore.numOfCartItems = data?.numOfCartItems || 0;
-            cartStore.totalCartPrice = data?.data?.totalCartPrice || 0;
-        } else {
-            let cart = JSON.parse(localStorage.getItem("guestCart")) || [];
-            cart = cart.map(p => p.id === item._id ? { ...p, count } : p);
-            localStorage.setItem("guestCart", JSON.stringify(cart));
-            cartStore.cartData = cart;
-            cartStore.numOfCartItems = cart.length;
-            cartStore.totalCartPrice = cart.reduce((acc, p) => acc + p.count * p.price, 0);
-        }
-    } finally {
-        loadingAdd.value = false
-        loadingRemove.value = false
-    }
+    await cartStore.deleteItem(item.value);
+    await showSuccess({ title: "Deleted!", text: "Item removed from cart" });
 }
 </script>
 
 <template>
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5">
+    <div :class="{
+        'opacity-50 pointer-events-none': cartStore.loadingAdd === item._id || cartStore.loadingRemove === item._id || cartStore.loadingDelete === item._id
+    }"
+        class="disabled:opacity-50 disabled:cursor-not-allowed bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5">
         <div class="flex gap-4 sm:gap-6">
-            <RouterLink class="relative shrink-0 group" to="/products/6428ebc6dc1175abc65ca0b9">
+            <RouterLink class="relative shrink-0 group" :to="`/product/${item?._id || item?.id}`">
                 <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-xl bg-gray-50 p-3 border border-gray-100 overflow-hidden">
                     <img :alt="item?.title"
                         class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
@@ -81,7 +34,7 @@ async function updateCount(count, type) {
             </RouterLink>
             <div class="flex-1 min-w-0 flex flex-col">
                 <div class="mb-3">
-                    <RouterLink class="group/title" to="/products/6428ebc6dc1175abc65ca0b9">
+                    <RouterLink class="group/title" :to="`/product/${item?._id || item?.id}`">
                         <h3
                             class="font-semibold text-gray-900 group-hover/title:text-primary-600 transition-colors leading-relaxed text-base sm:text-lg">
                             {{ item?.title }}
@@ -106,11 +59,11 @@ async function updateCount(count, type) {
                 </div>
                 <div class="mt-auto flex flex-wrap items-center justify-between gap-4">
                     <div class="flex items-center bg-gray-50 rounded-xl p-1 border border-gray-200">
-                        <button @click="updateCount(cartItem.count - 1, 'remove')"
-                            :disabled="cartItem.count <= 1 || loadingRemove || loadingAdd"
-                            :class="{ 'cursor-not-allowed!': cartItem.count <= 1 || loadingAdd === true }"
+                        <button @click="cartStore.updateCount(cartItem.count - 1, 'remove', item)"
+                            :disabled="cartItem.count <= 1 || cartStore.loadingRemove === item._id || cartStore.loadingAdd === item._id"
+                            :class="{ 'cursor-not-allowed!': cartItem.count <= 1 || loadingAdd === item._id }"
                             class="cursor-pointer h-8 w-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-gray-500 hover:text-gray-700 disabled:opacity-40 transition-all">
-                            <LoadingSpinner v-if="loadingRemove" class="w-3" />
+                            <LoadingSpinner v-if="cartStore.loadingRemove === item._id" class="w-3" />
                             <svg v-else data-prefix="fas" data-icon="minus" class="svg-inline--fa fa-minus text-xs w-3"
                                 role="img" viewBox="0 0 448 512" aria-hidden="true">
                                 <path fill="currentColor"
@@ -119,10 +72,11 @@ async function updateCount(count, type) {
                             </svg>
                         </button>
                         <span class="w-12 text-center font-bold text-gray-900">{{ cartItem.count }}</span>
-                        <button @click="updateCount(cartItem.count + 1, 'add')" :disabled="loadingAdd || loadingRemove"
-                            :class="{ 'cursor-not-allowed!': loadingRemove === true }"
+                        <button @click="cartStore.updateCount(cartItem.count + 1, 'add', item)"
+                            :disabled="cartStore.loadingAdd === item._id || cartStore.loadingRemove === item._id"
+                            :class="{ 'cursor-not-allowed!': cartStore.loadingRemove === item._id }"
                             class="cursor-pointer h-8 w-8 rounded-lg bg-primary-600 shadow-sm flex items-center justify-center text-white hover:bg-primary-700 transition-all">
-                            <LoadingSpinner v-if="loadingAdd" class="w-3" />
+                            <LoadingSpinner v-if="cartStore.loadingAdd === item._id" class="w-3" />
                             <svg v-else data-prefix="fas" data-icon="plus" class="svg-inline--fa fa-plus text-xs w-3"
                                 role="img" viewBox="0 0 448 512" aria-hidden="true">
                                 <path fill="currentColor"
@@ -137,8 +91,8 @@ async function updateCount(count, type) {
                             <p class="text-xl font-bold text-gray-900">{{ cartItem.price * cartItem.count }} <span
                                     class="text-sm font-medium text-gray-400">EGP</span></p>
                         </div>
-                        <button @click="deleteCartItem"
-                            class="cursor-pointer h-10 w-10 rounded-xl border border-red-200 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 flex items-center justify-center transition-all duration-200"
+                        <button @click="deleteCartItem" :disabled="cartStore.loadingDelete === item._id"
+                            class="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 h-10 w-10 rounded-xl border border-red-200 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 flex items-center justify-center transition-all duration-200"
                             title="Remove item">
                             <svg data-prefix="fas" data-icon="trash" class="svg-inline--fa fa-trash text-sm w-3.5"
                                 role="img" viewBox="0 0 448 512" aria-hidden="true">

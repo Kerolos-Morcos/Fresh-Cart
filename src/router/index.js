@@ -51,7 +51,7 @@ const router = createRouter({
           meta: { requiresGuest: true },
         },
         {
-          path: "product/:id/:slug",
+          path: "product/:id",
           name: "productDetails",
           component: () => import("../pages/ProductDetails.vue"),
         },
