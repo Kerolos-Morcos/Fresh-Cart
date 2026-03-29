@@ -3,10 +3,10 @@ import RatingStars from '@/components/RatingStars.vue';
 import SpecialServices from '@/components/footer/SpecialServices.vue';
 import { useCartStore } from '@/stores/cartStore';
 import { ref, computed, watch } from 'vue';
-import LoadingSpinner from '../LoadingSpinner.vue';
 import toastMessage from '@/helpers/toastMessage';
 import ProductDetailsWishlistButton from './ProductDetailsWishlistButton.vue';
 import ProductDetailsShareButton from './ProductDetailsShareButton.vue';
+import LoadingSpinner from '../LoadingSpinner.vue';
 
 const props = defineProps(['data']);
 const quantity = ref(1);
@@ -39,15 +39,30 @@ const totalPrice = computed(() => {
 
 function increase() {
     if (quantity.value < props.data?.quantity) quantity.value++
+    if (cartItem.value) {
+        cartStore.updateCount(cartItem.value.count + 1, 'add', props.data);
+    }
 }
 
 function decrease() {
     if (quantity.value > 1) quantity.value--
+    if (cartItem.value && cartItem.value.count > 1) {
+        cartStore.updateCount(cartItem.value.count - 1, 'remove', props.data);
+    }
 }
 
-watch(quantity, (val) => {
-    if (!val || val < 1) quantity.value = 1;
-    else if (val > props.data?.quantity) quantity.value = props.data?.quantity;
+watch(quantity, (val, oldVal) => {
+    if (!val || val < 1) {
+        quantity.value = 1;
+        return;
+    }
+    if (val > props.data?.quantity) {
+        quantity.value = props.data?.quantity;
+        return;
+    }
+    if (cartItem.value) {
+        cartStore.updateCount(val, "set", props.data);
+    }
 });
 </script>
 
@@ -98,10 +113,13 @@ watch(quantity, (val) => {
                 <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
                 <div class="flex items-center gap-4">
                     <div class="flex items-center border-2 border-gray-200 rounded-lg overflow-hidden">
-                        <button @click="decrease" :disabled="quantity <= 1"
+                        <button @click="decrease"
+                            :disabled="quantity <= 1 || cartStore.loadingRemove === (props.data?._id || props.data?.id) || cartStore.loadingAdd === (props.data?._id || props.data?.id)"
                             class="cursor-pointer disabled:cursor-not-allowed px-4 py-3 bg-gray-100 text-black hover:bg-gray-200 transition disabled:opacity-70">
-                            <svg data-prefix="fas" data-icon="minus" class="svg-inline--fa fa-minus w-2.5" role="img"
-                                viewBox="0 0 448 512" aria-hidden="true">
+                            <LoadingSpinner v-if="cartStore.loadingRemove === (props.data?._id || props.data?.id)"
+                                class="w-2.5! p-0! m-0! h-2.5!" />
+                            <svg v-else data-prefix="fas" data-icon="minus" class="svg-inline--fa fa-minus w-2.5"
+                                role="img" viewBox="0 0 448 512" aria-hidden="true">
                                 <path fill="currentColor"
                                     d="M0 256c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 288c-17.7 0-32-14.3-32-32z">
                                 </path>
@@ -110,10 +128,13 @@ watch(quantity, (val) => {
                         <input :max="data?.quantity" v-model="quantity" min="1"
                             class="w-16 text-center border-0 focus:ring-0 focus:outline-none text-lg font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             type="number">
-                        <button @click="increase" :disabled="quantity >= data?.quantity"
+                        <button @click="increase"
+                            :disabled="quantity >= data?.quantity || cartStore.loadingAdd === (props.data?._id || props.data?.id) || cartStore.loadingRemove === (props.data?._id || props.data?.id)"
                             class="cursor-pointer disabled:cursor-not-allowed px-4 py-3 bg-gray-100 text-black hover:bg-gray-200 transition disabled:opacity-50">
-                            <svg data-prefix="fas" data-icon="plus" class="svg-inline--fa fa-plus w-2.5" role="img"
-                                viewBox="0 0 448 512" aria-hidden="true">
+                            <LoadingSpinner v-if="cartStore.loadingAdd === (props.data?._id || props.data?.id)"
+                                class="w-2.5! p-0! m-0! h-2.5!" />
+                            <svg v-else data-prefix="fas" data-icon="plus" class="svg-inline--fa fa-plus w-2.5"
+                                role="img" viewBox="0 0 448 512" aria-hidden="true">
                                 <path fill="currentColor"
                                     d="M256 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 160-160 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l160 0 0 160c0 17.7 14.3 32 32 32s32-14.3 32-32l0-160 160 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-160 0 0-160z">
                                 </path>
@@ -134,7 +155,7 @@ watch(quantity, (val) => {
             </div>
             <div class="flex flex-col sm:flex-row gap-3 mb-6">
                 <button @click="addToCart"
-                    :disabled="isAddedToCart || cartStore.loadingAdd === (props.data?._id || props.data?.id)"
+                    :disabled="isAddedToCart || cartStore.loadingAdd === (props.data?._id || props.data?.id) || cartStore.loadingRemove === (props.data?._id || props.data?.id)"
                     class="cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 flex-1 text-white py-3.5 px-6 rounded-xl font-medium hover:bg-primary-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary-600/25 bg-primary-600">
                     <LoadingSpinner v-if="isAddedToCart" />
                     <svg v-else data-prefix="fas" data-icon="cart-shopping" class="w-4 svg-inline--fa fa-cart-shopping"
@@ -145,8 +166,8 @@ watch(quantity, (val) => {
                     </svg>
                     {{ isAddedToCart ? 'Processing...' : cartItem ? 'Add More' : 'Add to Cart' }}
                 </button>
-                <button
-                    class="cursor-pointer flex-1 bg-gray-900 text-white py-3.5 px-6 rounded-xl font-medium hover:bg-gray-800 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                <button :disabled="cartStore.loadingAdd === (props.data?._id || props.data?.id) || cartStore.loadingRemove === (props.data?._id || props.data?.id)"
+                    class="cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 flex-1 bg-gray-900 text-white py-3.5 px-6 rounded-xl font-medium hover:bg-gray-800 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                     <svg data-prefix="fas" data-icon="bolt" class="w-4 svg-inline--fa fa-bolt" role="img"
                         viewBox="0 0 448 512" aria-hidden="true">
                         <path fill="currentColor"

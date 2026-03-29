@@ -99,27 +99,25 @@ export const useCartStore = defineStore("cartStore", () => {
   async function updateCount(count, type, item) {
     if (type === "add") loadingAdd.value = item._id;
     if (type === "remove") loadingRemove.value = item._id;
-
     if (count < 1) return;
+
     const index = cartData.value.findIndex((i) => i._id === item._id);
-    if (index !== -1) {
-      cartData.value[index].count = count;
-    }
+    if (index !== -1) cartData.value[index].count = count;
 
     try {
       if (authStore.isLoggedUser) {
         const data = await fetchData({
           url: `/v2/cart/${item._id}`,
           method: "put",
-          data: { count },
+          data: { productId: item._id, count }, // API body مع productId
         });
+
         const updatedProducts = data?.data?.products || [];
         updatedProducts.forEach((updatedItem) => {
           const i = cartData.value.findIndex((p) => p._id === updatedItem._id);
-          if (i !== -1) {
-            cartData.value[i] = updatedItem;
-          }
+          if (i !== -1) cartData.value[i] = updatedItem;
         });
+
         numOfCartItems.value = data?.numOfCartItems || 0;
         totalCartPrice.value = data?.data?.totalCartPrice || 0;
       } else {
@@ -136,9 +134,7 @@ export const useCartStore = defineStore("cartStore", () => {
         );
       }
     } catch (err) {
-      if (index !== -1) {
-        cartData.value[index].count = item.count;
-      }
+      if (index !== -1) cartData.value[index].count = item.count; // rollback
     } finally {
       loadingAdd.value = null;
       loadingRemove.value = null;
@@ -177,36 +173,61 @@ export const useCartStore = defineStore("cartStore", () => {
     }
   }
 
-  async function addToCart(product) {
+  async function addToCart(product, qty = 1) {
     if (!authStore.isLoggedUser) {
+      // guest cart
       const existingCart = JSON.parse(
         localStorage.getItem("guestCart") || "[]",
       );
-      const alreadyExists = existingCart.some((p) => p.id === product.id);
-      if (!alreadyExists) {
-        existingCart.push(product);
-        localStorage.setItem("guestCart", JSON.stringify(existingCart));
-        cartData.value = existingCart;
-        numOfCartItems.value = existingCart.length;
+      const cartIndex = existingCart.findIndex(
+        (p) => p.id === product.id || p._id === product._id,
+      );
+
+      if (cartIndex !== -1) {
+        existingCart[cartIndex].count += qty;
+      } else {
+        existingCart.push({ ...product, count: qty, price: product.price });
       }
-      return { success: true, alreadyExists };
+
+      localStorage.setItem("guestCart", JSON.stringify(existingCart));
+      cartData.value = existingCart;
+      numOfCartItems.value = existingCart.length;
+      totalCartPrice.value = existingCart.reduce(
+        (acc, p) => acc + p.count * p.price,
+        0,
+      );
+
+      return { success: true };
     }
+
+    // logged-in user
     const alreadyExists = isProductInCart(product.id || product._id);
     if (!alreadyExists) {
-      cartData.value.push({ product, count: 1, price: product.price });
+      cartData.value.push({ product, count: qty, price: product.price });
       numOfCartItems.value++;
+    } else {
+      const idx = cartData.value.findIndex(
+        (item) =>
+          (item?.product?._id || item?.product?.id) ===
+          (product._id || product.id),
+      );
+      cartData.value[idx].count += qty;
     }
+
     try {
       const res = await fetchData({
         url: "/v2/cart",
         method: "post",
-        data: { productId: product.id || product._id },
+        data: { productId: product.id || product._id }, // API body
       });
+
       cartData.value = res?.data?.products || cartData.value;
       numOfCartItems.value = res?.numOfCartItems || numOfCartItems.value;
       totalCartPrice.value = res?.data?.totalCartPrice || totalCartPrice.value;
+
       return { success: true };
     } catch (err) {
+      // rollback
       cartData.value = cartData.value.filter(
         (item) =>
           (item?.product?.id || item?.product?._id) !==
