@@ -173,22 +173,17 @@ export const useCartStore = defineStore("cartStore", () => {
     }
   }
 
-  async function addToCart(product, qty = 1) {
+  async function addToCart(product) {
     if (!authStore.isLoggedUser) {
-      // guest cart
       const existingCart = JSON.parse(
         localStorage.getItem("guestCart") || "[]",
       );
       const cartIndex = existingCart.findIndex(
         (p) => p.id === product.id || p._id === product._id,
       );
-
       if (cartIndex !== -1) {
-        existingCart[cartIndex].count += qty;
-      } else {
-        existingCart.push({ ...product, count: qty, price: product.price });
+        existingCart.push({ ...product, price: product.price });
       }
-
       localStorage.setItem("guestCart", JSON.stringify(existingCart));
       cartData.value = existingCart;
       numOfCartItems.value = existingCart.length;
@@ -196,38 +191,24 @@ export const useCartStore = defineStore("cartStore", () => {
         (acc, p) => acc + p.count * p.price,
         0,
       );
-
       return { success: true };
     }
-
-    // logged-in user
     const alreadyExists = isProductInCart(product.id || product._id);
     if (!alreadyExists) {
-      cartData.value.push({ product, count: qty, price: product.price });
+      cartData.value.push({ product, price: product.price });
       numOfCartItems.value++;
-    } else {
-      const idx = cartData.value.findIndex(
-        (item) =>
-          (item?.product?._id || item?.product?.id) ===
-          (product._id || product.id),
-      );
-      cartData.value[idx].count += qty;
     }
-
     try {
       const res = await fetchData({
         url: "/v2/cart",
         method: "post",
-        data: { productId: product.id || product._id }, // API body
+        data: { productId: product.id || product._id },
       });
-
       cartData.value = res?.data?.products || cartData.value;
       numOfCartItems.value = res?.numOfCartItems || numOfCartItems.value;
       totalCartPrice.value = res?.data?.totalCartPrice || totalCartPrice.value;
-
       return { success: true };
     } catch (err) {
-      // rollback
       cartData.value = cartData.value.filter(
         (item) =>
           (item?.product?.id || item?.product?._id) !==
