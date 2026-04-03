@@ -1,5 +1,6 @@
 <script setup>
 import ComponentLoader from '@/components/ComponentLoader.vue';
+import EmptyStateComponent from '@/components/EmptyStateComponent.vue';
 import DeliveryAddress from '@/components/orders/DeliveryAddress.vue';
 import OrderImageCover from '@/components/orders/OrderImageCover.vue';
 import OrderItems from '@/components/orders/OrderItems.vue';
@@ -44,7 +45,14 @@ onMounted(() => {
 
 <template>
     <ComponentLoader v-if="isLoading" :title="'your orders'" />
-    <EmptyOrders v-else-if="orders.length === 0" />
+    <EmptyStateComponent v-else-if="!orders.length || orders.length === 0"
+        :icon-paths="'M560.3 237.2c10.4 11.8 28.3 14.4 41.8 5.5 14.7-9.8 18.7-29.7 8.9-44.4l-48-72c-2.8-4.2-6.6-7.7-11.1-10.2L351.4 4.7c-19.3-10.7-42.8-10.7-62.2 0L88.8 116c-5.4 3-9.7 7.4-12.6 12.8L27.7 218.7c-12.6 23.4-3.8 52.5 19.6 65.1l33 17.7 0 53.3c0 23 12.4 44.3 32.4 55.7l176 99.7c19.6 11.1 43.5 11.1 63.1 0l176-99.7c20.1-11.4 32.4-32.6 32.4-55.7l0-117.5zm-240-9.8L170.2 144 320.3 60.6 470.4 144 320.3 227.4zm-41.5 50.2l-21.3 46.2-165.8-88.8 25.4-47.2 161.7 89.8z'"
+        icon-view-box="0 0 640 512" icon-size="lg" icon-shape="rounded" icon-bg="bg-gray-100" icon-width="w-15"
+        icon-color="text-gray-400" title="No orders yet" title-size="2xl"
+        description="When you place orders, they'll appear here<br>so you can track them." cta-label="Start Shopping"
+        cta-to="/"
+        :cta-leading-icon-path="'M160 80c0-35.3 28.7-64 64-64s64 28.7 64 64l0 48-128 0 0-48zm-48 48l-64 0c-26.5 0-48 21.5-48 48L0 384c0 53 43 96 96 96l256 0c53 0 96-43 96-96l0-208c0-26.5-21.5-48-48-48l-64 0 0-48c0-61.9-50.1-112-112-112S112 18.1 112 80l0 48zm24 48a24 24 0 1 1 0 48 24 24 0 1 1 0-48zm152 24a24 24 0 1 1 48 0 24 24 0 1 1 -48 0z'"
+        cta-icon-view-box="0 0 448 512" cta-class="w-full sm:w-auto" />
     <div v-else class="container mx-auto px-4 py-8">
         <OrdersHeader :ordersLength="orders.length" />
         <div class="space-y-4">

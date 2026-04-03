@@ -98,6 +98,11 @@ const router = createRouter({
           alias: "/allorders",
           meta: { requiresAuth: true },
         },
+        {
+          path: "/:pathMatch(.*)*",
+          name: "not-found",
+          component: () => import("../pages/NotFound.vue"),
+        },
       ],
     },
     // For Not Displaying Nav & Footer

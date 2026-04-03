@@ -7,11 +7,14 @@ import toastMessage from '@/helpers/toastMessage';
 import ProductDetailsWishlistButton from './ProductDetailsWishlistButton.vue';
 import ProductDetailsShareButton from './ProductDetailsShareButton.vue';
 import LoadingSpinner from '../LoadingSpinner.vue';
+import { useRouter } from 'vue-router';
 
 const props = defineProps(['data']);
 const quantity = ref(1);
 const cartStore = useCartStore();
 const isAddedToCart = ref(false);
+const isBuyingNow = ref(false);
+const router = useRouter();
 
 const cartItem = computed(() =>
     cartStore.cartData?.find(item =>
@@ -29,6 +32,18 @@ async function addToCart() {
         );
     } finally {
         isAddedToCart.value = false;
+    }
+}
+
+async function buyNow() {
+    isBuyingNow.value = true;
+    try {
+        await cartStore.addToCart(props.data); // هيزود أو يضيف
+        await cartStore.updateCount(quantity.value, 'set', props.data);
+
+        router.push('/checkout');
+    } finally {
+        isBuyingNow.value = false;
     }
 }
 
@@ -178,16 +193,17 @@ watch(quantity, (val, oldVal) => {
                     {{ isAddedToCart ? 'Processing...' : !cartItem ? `Add 1 product` : 'Add More' }}
                 </button>
                 <!--  -->
-                <button
-                    :disabled="cartStore.loadingAdd === (props.data?._id || props.data?.id) || cartStore.loadingRemove === (props.data?._id || props.data?.id)"
+                <button @click="buyNow"
+                    :disabled="isBuyingNow || cartStore.loadingAdd === (props.data?._id || props.data?.id) || cartStore.loadingRemove === (props.data?._id || props.data?.id)"
                     class="cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 flex-1 bg-gray-900 text-white py-3.5 px-6 rounded-xl font-medium hover:bg-gray-800 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                    <svg data-prefix="fas" data-icon="bolt" class="w-4 svg-inline--fa fa-bolt" role="img"
+                    <LoadingSpinner v-if="isBuyingNow" />
+                    <svg v-else data-prefix="fas" data-icon="bolt" class="w-4 svg-inline--fa fa-bolt" role="img"
                         viewBox="0 0 448 512" aria-hidden="true">
                         <path fill="currentColor"
                             d="M338.8-9.9c11.9 8.6 16.3 24.2 10.9 37.8L271.3 224 416 224c13.5 0 25.5 8.4 30.1 21.1s.7 26.9-9.6 35.5l-288 240c-11.3 9.4-27.4 9.9-39.3 1.3s-16.3-24.2-10.9-37.8L176.7 288 32 288c-13.5 0-25.5-8.4-30.1-21.1s-.7-26.9 9.6-35.5l288-240c11.3-9.4 27.4-9.9 39.3-1.3z">
                         </path>
                     </svg>
-                    Buy Now
+                    {{ isBuyingNow ? 'Processing...' : 'Buy Now' }}
                 </button>
                 <!--  -->
             </div>
