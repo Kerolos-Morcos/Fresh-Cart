@@ -23,8 +23,7 @@ defineProps(['order'])
             </div>
             <div class="flex justify-between text-gray-600 font-medium">
                 <span>Shipping</span>
-                <span class="font-medium">{{ order?.shippingPrice === 0 ? 'Free' :
-                    order?.shippingPrice + ' EGP' }}</span>
+                <span class="font-medium">{{ order?.totalOrderPrice > 500 ? 'Free' : '50 EGP' }}</span>
             </div>
             <div v-show="order.taxPrice !== 0" class="flex justify-between text-gray-600 font-medium">
                 <span>Taxes</span>
@@ -33,7 +32,8 @@ defineProps(['order'])
             <hr class="border-gray-200/50 my-2">
             <div class="flex justify-between pt-1">
                 <span class="font-semibold text-gray-900">Total</span>
-                <span class="font-bold text-lg text-gray-900">{{ order?.totalOrderPrice }}
+                <span class="font-bold text-lg text-gray-900">{{ order?.totalOrderPrice > 500 ? order?.totalOrderPrice :
+                    order?.totalOrderPrice + 50 }}
                     EGP</span>
             </div>
         </div>

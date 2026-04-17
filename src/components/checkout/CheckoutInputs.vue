@@ -20,25 +20,28 @@ function setSelectedMethod(method) {
 }
 
 async function onShippingSubmit(values) {
+    const orderData = { shippingAddress: values };
     const appURL = window.location.origin;
     const cartId = cartStore?.cartId;
     if (isSelectedMethod.value === 'cash') {
         await fetchData({
             url: `/v1/orders/${cartId}`,
             method: "post",
-            data: values
+            data: orderData,
         });
         router.push({ name: 'orders' });
+        cartStore.numOfCartItems = 0;
     } else {
         const data = await fetchData({
             url: `/v1/orders/checkout-session/${cartId}?url=${appURL}`,
             method: "post",
-            data: values
+            data: orderData,
         });
         if (data) {
             const url = data.session.url
             window.location.href = url
         }
+        cartStore.numOfCartItems = 0;
     }
 }
 </script>
