@@ -1,38 +1,53 @@
 <script setup>
 import { useBreadcrumb } from "@/composables/useBreadcrumb";
 
+const props = defineProps({
+    variant: {
+        type: String,
+        default: "default",
+    },
+});
+
 const { breadcrumb } = useBreadcrumb();
 </script>
 
 <template>
-    <div aria-label="Breadcrumb" class="py-4">
-        <div class="container mx-auto px-4">
-            <ol class="flex items-center flex-wrap gap-1.5 text-sm font-medium">
+    <div :class="variant === 'default' ? 'py-4 px-4' : 'mb-6'">
+        <div class="container mx-auto">
+            <ol :class="[
+                'flex items-center flex-wrap text-sm font-medium',
+                variant === 'default' ? 'gap-1.5' : 'text-white/70 gap-0.5'
+            ]">
                 <!-- Home -->
                 <li class="flex items-center">
-                    <RouterLink class="text-gray-500 hover:text-primary-600 transition flex items-center gap-2" to="/">
-                        <svg data-prefix="fas" data-icon="house" class="svg-inline--fa fa-house text-xs w-3" role="img"
-                            viewBox="0 0 512 512" aria-hidden="true">
+                    <RouterLink to="/" :class="[
+                        'transition flex items-center gap-2',
+                        variant === 'default'
+                            ? 'text-gray-500 hover:text-primary-600'
+                            : 'hover:text-white'
+                    ]">
+                        <svg v-if="variant === 'default'" class="text-xs w-3" viewBox="0 0 512 512">
                             <path fill="currentColor"
-                                d="M277.8 8.6c-12.3-11.4-31.3-11.4-43.5 0l-224 208c-9.6 9-12.8 22.9-8 35.1S18.8 272 32 272l16 0 0 176c0 35.3 28.7 64 64 64l288 0c35.3 0 64-28.7 64-64l0-176 16 0c13.2 0 25-8.1 29.8-20.3s1.6-26.2-8-35.1l-224-208zM240 320l32 0c26.5 0 48 21.5 48 48l0 96-128 0 0-96c0-26.5 21.5-48 48-48z">
-                            </path>
+                                d="M277.8 8.6c-12.3-11.4-31.3-11.4-43.5 0l-224 208c-9.6 9-12.8 22.9-8 35.1S18.8 272 32 272l16 0 0 176c0 35.3 28.7 64 64 64l288 0c35.3 0 64-28.7 64-64l0-176 16 0c13.2 0 25-8.1 29.8-20.3s1.6-26.2-8-35.1l-224-208z" />
                         </svg>
                         <span>Home</span>
                     </RouterLink>
                 </li>
-                <!-- Dynamic Breadcrumb -->
                 <li v-for="(item, index) in breadcrumb" :key="index" class="flex items-center">
-                    <svg class="text-gray-400 text-xs w-2 mx-2" viewBox="0 0 320 512">
-                        <path fill="currentColor" d="M311.1 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5
-              12.5-32.8 12.5-45.3 0s-12.5-32.8
-              0-45.3L243.2 256 73.9
-              86.6c-12.5-12.5-12.5-32.8
-              0-45.3s32.8-12.5 45.3 0l192 192z" />
-                    </svg>
-                    <RouterLink v-if="item.to" :to="item.to" class="text-gray-500 hover:text-primary-600 transition">
+                    <span :class="variant === 'default' ? 'text-gray-400 mx-2' : 'text-white/40 mx-1'">
+                        /
+                    </span>
+                    <RouterLink v-if="item.to" :to="item.to" :class="[
+                        'transition',
+                        variant === 'default'
+                            ? 'text-gray-500 hover:text-primary-600'
+                            : 'hover:text-white'
+                    ]">
                         {{ item.label }}
                     </RouterLink>
-                    <span v-else class="text-gray-900 font-medium truncate max-w-xs">
+                    <span v-else :class="variant === 'default'
+                        ? 'text-gray-900 font-medium'
+                        : 'text-white font-medium'">
                         {{ item.label }}
                     </span>
                 </li>

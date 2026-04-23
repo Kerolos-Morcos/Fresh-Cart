@@ -99,6 +99,18 @@ const router = createRouter({
           meta: { requiresAuth: true },
         },
         {
+          path: "addresses",
+          name: "addresses",
+          component: () => import("../pages/Addresses.vue"),
+          meta: { requiresAuth: true },
+        },
+        {
+          path: "settings",
+          name: "settings",
+          component: () => import("../pages/Settings.vue"),
+          meta: { requiresAuth: true },
+        },
+        {
           path: "/:pathMatch(.*)*",
           name: "not-found",
           component: () => import("../pages/NotFound.vue"),
