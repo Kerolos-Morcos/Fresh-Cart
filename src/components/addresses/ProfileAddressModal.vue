@@ -1,7 +1,7 @@
 <script setup>
 import Dialog from 'primevue/dialog';
 import { nextTick, ref, watch } from 'vue';
-import { addressesSchema } from '@/validations/adressesSchema.js';
+import { addressesSchema } from '@/validations/addressesSchema.js';
 import BaseField from '../form/BaseField.vue';
 import { Form } from 'vee-validate';
 import { useAddressStore } from '@/stores/addressesStore';
