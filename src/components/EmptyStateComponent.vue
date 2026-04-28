@@ -48,6 +48,16 @@ defineProps({
         default: '2xl',
         validator: (v) => ['xl', '2xl'].includes(v),
     },
+    // Description text size: 'sm' | 'md' | 'lg'
+    descSize: {
+        type: String,
+        default: 'sm',
+        validator: (v) => ['sm', 'md', 'lg'].includes(v),
+    },
+    descStyle: {
+        type: String,
+        default: 'font-medium',
+    },
     // Description text (supports <br> via v-html)
     description: {
         type: String,
@@ -109,6 +119,12 @@ const titleSizeMap = {
     xl: 'text-xl',
     '2xl': 'text-2xl',
 }
+
+const descSizeMap = {
+    sm: 'text-sm',
+    md: 'text-md',
+    lg: 'text-lg',
+}
 </script>
 
 <template>
@@ -131,7 +147,8 @@ const titleSizeMap = {
             <h2 :class="[titleSizeMap[titleSize], 'font-bold text-gray-900 mb-2']">{{ title }}</h2>
 
             <!-- Description -->
-            <p v-if="description" class="text-gray-500 text-sm mb-6 font-medium leading-relaxed" v-html="description" />
+            <p v-if="description" :class="[descSizeMap[descSize], descStyle]" class="text-gray-500 mb-6 leading-relaxed"
+                v-html="description" />
 
             <!-- CTA -->
             <RouterLink v-if="ctaLabel" :to="ctaTo"

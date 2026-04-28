@@ -7,6 +7,7 @@ export async function confirmDelete({
   itemName = "",
   confirmText = "Delete",
   cancelText = "Cancel",
+  fromText = "cart",
 } = {}) {
   return await Swal.fire({
     html: `
@@ -21,7 +22,7 @@ export async function confirmDelete({
                     ${title}
                 </h2>
                 <p class="text-gray-500">
-                    ${text} ${itemName ? `<strong>${itemName}</strong> from your cart?` : ""}
+                    ${text} ${itemName ? `<strong>${itemName}</strong> from your ${fromText}?` : ""}
                 </p>
             </div>
         `,

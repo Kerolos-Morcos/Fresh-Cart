@@ -11,7 +11,7 @@ import { useAPI } from "@/composables/useAPI";
 import toastMessage from "@/helpers/toastMessage";
 
 const router = useRouter();
-const { fetchData, error, isLoading } = useAPI();
+const { fetchData, isLoading } = useAPI();
 
 async function registerUser(body, { resetForm }) {
     const res = await fetchData({

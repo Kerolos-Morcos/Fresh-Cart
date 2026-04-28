@@ -25,6 +25,20 @@ const router = createRouter({
           name: "profile",
           component: () => import("../pages/Profile.vue"),
           meta: { requiresAuth: true, breadcrumb: "Profile" },
+          children: [
+            {
+              path: "addresses",
+              name: "profile-addresses",
+              component: () => import("../pages/Addresses.vue"),
+              meta: { requiresAuth: true },
+            },
+            {
+              path: "settings",
+              name: "profile-settings",
+              component: () => import("../pages/Settings.vue"),
+              meta: { requiresAuth: true },
+            },
+          ],
         },
         {
           path: "brands",
@@ -96,18 +110,6 @@ const router = createRouter({
           name: "orders",
           component: () => import("../pages/Orders.vue"),
           alias: "/allorders",
-          meta: { requiresAuth: true },
-        },
-        {
-          path: "addresses",
-          name: "addresses",
-          component: () => import("../pages/Addresses.vue"),
-          meta: { requiresAuth: true },
-        },
-        {
-          path: "settings",
-          name: "settings",
-          component: () => import("../pages/Settings.vue"),
           meta: { requiresAuth: true },
         },
         {

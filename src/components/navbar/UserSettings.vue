@@ -92,7 +92,7 @@ onClickOutside(dropdownRef, () => isOpen.value = false)
                     </RouterLink>
                     <RouterLink
                         class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
-                        to="/addresses" @click="closeDropdown">
+                        to="/profile/addresses" @click="closeDropdown">
                         <svg data-prefix="far" data-icon="address-book"
                             class="svg-inline--fa fa-address-book w-4 text-gray-400" role="img" viewBox="0 0 512 512"
                             aria-hidden="true">
@@ -103,7 +103,7 @@ onClickOutside(dropdownRef, () => isOpen.value = false)
                     </RouterLink>
                     <RouterLink
                         class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
-                        to="/settings" @click="closeDropdown">
+                        to="/profile/settings" @click="closeDropdown">
                         <svg data-prefix="fas" data-icon="gear" class="svg-inline--fa fa-gear w-4 text-gray-400"
                             role="img" viewBox="0 0 512 512" aria-hidden="true">
                             <path fill="currentColor"

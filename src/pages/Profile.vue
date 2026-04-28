@@ -1,11 +1,13 @@
 <script setup>
+import ProfileBody from '@/components/addresses/ProfileBody.vue';
+import ProfileHeader from '@/components/addresses/ProfileHeader.vue';
+
 
 </script>
 
 <template>
-    <div>
-        <h1>Profile</h1>
-    </div>
+    <ProfileHeader />
+    <ProfileBody />
 </template>
 
 <style scoped></style>

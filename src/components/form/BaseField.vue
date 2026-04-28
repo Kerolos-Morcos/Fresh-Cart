@@ -8,7 +8,8 @@ const props = defineProps([
     "placeholder",
     "id",
     "inputClass",
-    "gap"
+    "gap",
+    "as"
 ]);
 </script>
 
@@ -18,8 +19,9 @@ const props = defineProps([
             {{ label }}
         </label>
         <div class="relative w-full">
-            <Field :name="name" :validate-on-input="true" :validate-on-blur="true" :type="type || 'text'"
-                :id="id || name" :placeholder="placeholder" class="form-control w-full m-0" :class="inputClass" />
+            <Field :as="as || 'input'" :name="name" :validate-on-input="true" :validate-on-blur="true"
+                :type="type || 'text'" :id="id || name" :placeholder="placeholder" class="form-control w-full m-0"
+                :class="inputClass" />
             <slot name="icon" />
         </div>
         <ErrorMessage :name="name" class="errorMessage" />
