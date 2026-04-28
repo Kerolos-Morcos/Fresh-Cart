@@ -11,8 +11,6 @@ const { btnTitle } = defineProps({
         default: 'Add Address'
     }
 });
-
-const emit = defineEmits(['submit-success']);
 </script>
 
 <template>
@@ -26,8 +24,7 @@ const emit = defineEmits(['submit-success']);
         </svg>
         <span>{{ btnTitle }}</span>
     </Button>
-    <ProfileAddressModal v-model:visible="visible"
-        @submit-success="(payload) => { emit('submit-success', payload) }" />
+    <ProfileAddressModal v-model:visible="visible" />
 </template>
 
 <style scoped></style>

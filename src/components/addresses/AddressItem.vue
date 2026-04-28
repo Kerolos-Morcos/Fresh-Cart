@@ -1,14 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import ProfileAddressModal from './ProfileAddressModal.vue';
-import { useAPI } from '@/composables/useAPI';
 import { confirmDelete, showSuccess } from '@/helpers/swalCustomAlerts';
+import { useAddressStore } from '@/stores/addressesStore';
 
 const { address } = defineProps(['address']);
 const visible = ref(false);
 
-const emit = defineEmits(['submit-success']);
-const { fetchData } = useAPI();
+const store = useAddressStore();
 
 async function deleteAddress() {
     const result = await confirmDelete({
@@ -20,9 +19,8 @@ async function deleteAddress() {
         cancelText: 'Cancel'
     });
     if (!result.isConfirmed) return;
-    await fetchData({ url: `/v1/addresses/${address._id}`, method: 'delete' });
+    await store.deleteAddress(address._id);
     showSuccess({ title: 'Address deleted successfully' });
-    emit('submit-success', { mode: 'delete', oldId: address._id });
 }
 </script>
 
@@ -78,8 +76,7 @@ async function deleteAddress() {
                         </path>
                     </svg>
                 </button>
-                <ProfileAddressModal :mode="'edit'" :data="address" v-model:visible="visible"
-                    @submit-success="(payload) => { emit('submit-success', payload) }" />
+                <ProfileAddressModal :mode="'edit'" :data="address" v-model:visible="visible" />
                 <!-- Delete address -->
                 <button @click="deleteAddress"
                     class="cursor-pointer w-9 h-9 rounded-lg bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-600 flex items-center justify-center transition-colors disabled:opacity-50"

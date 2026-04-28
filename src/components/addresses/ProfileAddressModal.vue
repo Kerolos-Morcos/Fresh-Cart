@@ -1,10 +1,10 @@
 <script setup>
-import { useAPI } from '@/composables/useAPI';
 import Dialog from 'primevue/dialog';
 import { nextTick, ref, watch } from 'vue';
 import { addressesSchema } from '@/validations/adressesSchema.js';
 import BaseField from '../form/BaseField.vue';
 import { Form } from 'vee-validate';
+import { useAddressStore } from '@/stores/addressesStore';
 
 const props = defineProps({
     visible: Boolean,
@@ -12,8 +12,9 @@ const props = defineProps({
     data: { type: Object, default: () => ({}) }
 });
 
-const emit = defineEmits(['update:visible', 'submit-success']);
-const { fetchData } = useAPI();
+const store = useAddressStore();
+
+const emit = defineEmits(['update:visible']);
 const formRef = ref(null);
 
 watch(() => props.visible, (newVal) => {
@@ -36,16 +37,9 @@ watch(() => props.visible, (newVal) => {
 
 async function handleSubmit(values) {
     if (props.mode === 'edit') {
-        await fetchData({ url: `/v1/addresses/${props.data._id}`, method: 'delete' });
-        const res = await fetchData({ url: '/v1/addresses', method: 'post', data: values });
-        emit('submit-success', {
-            mode: 'edit',
-            oldId: props.data._id,
-            addresses: res?.data
-        });
+        await store.editAddress(props.data._id, values);
     } else {
-        const res = await fetchData({ url: '/v1/addresses', method: 'post', data: values });
-        emit('submit-success', { mode: 'add', addresses: res?.data });
+        await store.addAddress(values);
     }
     emit('update:visible', false);
 }
