@@ -4,28 +4,79 @@ import ProfileAddressModal from './ProfileAddressModal.vue';
 import { confirmDelete, showSuccess } from '@/helpers/swalCustomAlerts';
 import { useAddressStore } from '@/stores/addressesStore';
 
-const { address } = defineProps(['address']);
-const visible = ref(false);
+const props = defineProps({
+    address: { type: Object, required: true },
+    mode: { type: String, default: 'profile' }
+});
 
+const emit = defineEmits(['select']);
+const visible = ref(false);
 const store = useAddressStore();
 
 async function deleteAddress() {
     const result = await confirmDelete({
         title: 'Delete Address?',
         text: 'Are you sure you want to delete',
-        itemName: `${address.name}`,
+        itemName: `${props.address.name}`,
         fromText: 'saved addresses',
         confirmText: 'Delete',
         cancelText: 'Cancel'
     });
     if (!result.isConfirmed) return;
-    await store.deleteAddress(address._id);
+    await store.deleteAddress(props.address._id);
     showSuccess({ title: 'Address deleted successfully' });
 }
 </script>
 
 <template>
-    <div
+    <button v-if="mode === 'checkout'" @click="emit('select', props.address)" type="button"
+        class="w-full p-4 rounded-xl border-2 text-left transition-all duration-200" :class="store.selectedAddressId === props.address._id
+            ? 'border-primary-500 bg-primary-50 ring-0.5 ring-primary-500/20'
+            : 'cursor-pointer border-gray-200 hover:border-primary-200 hover:bg-gray-50'">
+        <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors" :class="store.selectedAddressId === address._id
+                ? 'bg-primary-500 text-white'
+                : 'bg-gray-100 text-gray-500'">
+                <svg v-if="store.selectedAddressId === address._id" viewBox="0 0 448 512" class="w-4"
+                    fill="currentColor">
+                    <path
+                        d="M434.8 70.1c14.3 10.4 17.5 30.4 7.1 44.7l-256 352c-5.5 7.6-14 12.3-23.4 13.1s-18.5-2.7-25.1-9.3l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l101.5 101.5 234-321.7c10.4-14.3 30.4-17.5 44.7-7.1z" />
+                </svg>
+                <svg v-else viewBox="0 0 384 512" class="w-4" fill="currentColor">
+                    <path
+                        d="M0 188.6C0 84.4 86 0 192 0S384 84.4 384 188.6c0 119.3-120.2 262.3-170.4 316.8-11.8 12.8-31.5 12.8-43.3 0-50.2-54.5-170.4-197.5-170.4-316.8zM192 256a64 64 0 1 0 0-128 64 64 0 1 0 0 128z" />
+                </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="font-semibold"
+                    :class="store.selectedAddressId === address._id ? 'text-green-700' : 'text-gray-900'">
+                    {{ props.address.name }}
+                </p>
+                <p class="text-sm text-gray-600 mt-0.5 line-clamp-1">{{ props.address.details }}</p>
+                <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                    <span class="flex items-center gap-1"><svg data-prefix="fas" data-icon="phone"
+                            class="w-3 svg-inline--fa fa-phone text-xs" role="img" viewBox="0 0 512 512"
+                            aria-hidden="true">
+                            <path fill="currentColor"
+                                d="M160.2 25C152.3 6.1 131.7-3.9 112.1 1.4l-5.5 1.5c-64.6 17.6-119.8 80.2-103.7 156.4 37.1 175 174.8 312.7 349.8 349.8 76.3 16.2 138.8-39.1 156.4-103.7l1.5-5.5c5.4-19.7-4.7-40.3-23.5-48.1l-97.3-40.5c-16.5-6.9-35.6-2.1-47 11.8l-38.6 47.2C233.9 335.4 177.3 277 144.8 205.3L189 169.3c13.9-11.3 18.6-30.4 11.8-47L160.2 25z">
+                            </path>
+                        </svg>
+                        {{ props.address.phone }}
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <svg data-prefix="fas" data-icon="city" class="w-3 svg-inline--fa fa-city text-xs" role="img"
+                            viewBox="0 0 576 512" aria-hidden="true">
+                            <path fill="currentColor"
+                                d="M320 0c-35.3 0-64 28.7-64 64l0 32-48 0 0-72c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 72-64 0 0-72C96 10.7 85.3 0 72 0S48 10.7 48 24l0 74c-27.6 7.1-48 32.2-48 62L0 448c0 35.3 28.7 64 64 64l448 0c35.3 0 64-28.7 64-64l0-192c0-35.3-28.7-64-64-64l-64 0 0-128c0-35.3-28.7-64-64-64L320 0zm64 112l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16zm-16 80c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0zm16 112l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16zm112-16c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0zM256 304l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16zM240 192c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0zM128 304l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16zM112 192c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0z">
+                            </path>
+                        </svg>
+                        {{ props.address.city }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </button>
+    <div v-else
         class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md hover:border-primary-100 transition-all duration-200 group">
         <div class="flex items-start justify-between gap-4">
             <div class="flex items-start gap-4 flex-1">
@@ -40,8 +91,8 @@ async function deleteAddress() {
                     </svg>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <h3 class="font-bold text-gray-900 mb-1">{{ address.name }}</h3>
-                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ address.details }}</p>
+                    <h3 class="font-bold text-gray-900 mb-1">{{ props.address.name }}</h3>
+                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ props.address.details }}</p>
                     <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                         <span class="flex items-center gap-1.5">
                             <svg data-prefix="fas" data-icon="phone" class="w-4 svg-inline--fa fa-phone text-xs"
@@ -50,7 +101,7 @@ async function deleteAddress() {
                                     d="M160.2 25C152.3 6.1 131.7-3.9 112.1 1.4l-5.5 1.5c-64.6 17.6-119.8 80.2-103.7 156.4 37.1 175 174.8 312.7 349.8 349.8 76.3 16.2 138.8-39.1 156.4-103.7l1.5-5.5c5.4-19.7-4.7-40.3-23.5-48.1l-97.3-40.5c-16.5-6.9-35.6-2.1-47 11.8l-38.6 47.2C233.9 335.4 177.3 277 144.8 205.3L189 169.3c13.9-11.3 18.6-30.4 11.8-47L160.2 25z">
                                 </path>
                             </svg>
-                            {{ address.phone }}
+                            {{ props.address.phone }}
                         </span>
                         <span class="flex items-center gap-1.5">
                             <svg data-prefix="fas" data-icon="city" class="w-4 svg-inline--fa fa-city text-xs"
@@ -59,7 +110,7 @@ async function deleteAddress() {
                                     d="M320 0c-35.3 0-64 28.7-64 64l0 32-48 0 0-72c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 72-64 0 0-72C96 10.7 85.3 0 72 0S48 10.7 48 24l0 74c-27.6 7.1-48 32.2-48 62L0 448c0 35.3 28.7 64 64 64l448 0c35.3 0 64-28.7 64-64l0-192c0-35.3-28.7-64-64-64l-64 0 0-128c0-35.3-28.7-64-64-64L320 0zm64 112l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16zm-16 80c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0zm16 112l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16zm112-16c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0zM256 304l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16zM240 192c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0zM128 304l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16zM112 192c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0z">
                                 </path>
                             </svg>
-                            {{ address.city }}
+                            {{ props.address.city }}
                         </span>
                     </div>
                 </div>
@@ -76,7 +127,7 @@ async function deleteAddress() {
                         </path>
                     </svg>
                 </button>
-                <ProfileAddressModal :mode="'edit'" :data="address" v-model:visible="visible" />
+                <ProfileAddressModal :mode="'edit'" :data="props.address" v-model:visible="visible" />
                 <!-- Delete address -->
                 <button @click="deleteAddress"
                     class="cursor-pointer w-9 h-9 rounded-lg bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-600 flex items-center justify-center transition-colors disabled:opacity-50"

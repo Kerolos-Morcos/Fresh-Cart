@@ -7,10 +7,21 @@ export const useAddressStore = defineStore("addressStore", () => {
   const isLoading = ref(false);
   const { fetchData } = useAPI();
 
+  const selectedAddressId = ref("new");
+
+  function selectAddress(address) {
+    selectedAddressId.value = address._id;
+  }
+
+  function selectNewAddress() {
+    selectedAddressId.value = "new";
+  }
+
   async function getAddresses() {
     isLoading.value = true;
     const res = await fetchData({ url: "/v1/addresses", method: "get" });
     addresses.value = res?.data || [];
+    selectedAddressId.value = "new";
     isLoading.value = false;
   }
 
@@ -52,5 +63,8 @@ export const useAddressStore = defineStore("addressStore", () => {
     addAddress,
     editAddress,
     deleteAddress,
+    selectedAddressId,
+    selectAddress,
+    selectNewAddress,
   };
 });

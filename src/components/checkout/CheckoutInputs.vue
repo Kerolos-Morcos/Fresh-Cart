@@ -1,14 +1,16 @@
 <script setup>
-import { shippingSchema } from '@/validations/checkoutSchema';
+import { shippingSchema } from '@/validations/addressesSchema';
 import CheckoutTitle from './CheckoutTitle.vue';
 import DeliveryInfo from './DeliveryInfo.vue';
 import OrderSummary from './OrderSummary.vue';
 import PaymentMethod from './PaymentMethod.vue';
 import { ErrorMessage, Field, Form } from 'vee-validate';
 import { useAPI } from '@/composables/useAPI';
-import { inject } from 'vue';
+import { inject, watch } from 'vue';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import SavedAddresses from './SavedAddresses.vue';
+import { useAddressStore } from '@/stores/addressesStore';
 
 const cartStore = inject('cartStore');
 const { fetchData, isLoading } = useAPI();
@@ -23,6 +25,26 @@ async function onShippingSubmit(values) {
     const orderData = { shippingAddress: values };
     const appURL = window.location.origin;
     const cartId = cartStore?.cartId;
+
+    // new
+    const id = store.selectedAddressId;
+    let shippingAddress = values;
+    if (id === 'new') {
+        await store.addAddress({
+            ...values,
+            name: `Address ${store.addresses.length + 1}`,
+        });
+    } else {
+        const selected = store.addresses.find(a => a._id === id);
+        const isChanged = values.city !== selected?.city || values.details !== selected?.details || values.phone !== selected?.phone;
+        if (isChanged) {
+            await store.editAddress(id, {
+                ...values,
+                name: selected.name,
+            });
+        }
+    }
+
     if (isSelectedMethod.value === 'cash') {
         await fetchData({
             url: `/v1/orders/${cartId}`,
@@ -44,10 +66,28 @@ async function onShippingSubmit(values) {
         cartStore.numOfCartItems = 0;
     }
 }
+
+// Addresses
+const store = useAddressStore();
+const formRef = ref(null);
+watch(() => store.selectedAddressId, (id) => {
+    if (id === 'new') {
+        formRef.value?.resetForm();
+        return;
+    }
+    const selected = store.addresses.find(a => a._id === id);
+    if (!selected) return;
+
+    formRef.value?.setValues({
+        city: selected.city || '',
+        details: selected.details || '',
+        phone: selected.phone || '',
+    });
+});
 </script>
 
 <template>
-    <Form :validation-schema="shippingSchema" @submit="onShippingSubmit">
+    <Form ref="formRef" :validation-schema="shippingSchema" @submit="onShippingSubmit">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-6">
                 <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
@@ -62,6 +102,7 @@ async function onShippingSubmit(values) {
                         </template>
                     </CheckoutTitle>
                     <div class="p-6 space-y-5">
+                        <SavedAddresses v-if="store.addresses" />
                         <DeliveryInfo />
                         <div>
                             <label for="city" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -123,7 +164,7 @@ async function onShippingSubmit(values) {
                                         </path>
                                     </svg>
                                 </div>
-                                <Field id="phone" as="input"
+                                <Field id="phone" as="input" :validate-on-change="true"
                                     class="w-full px-4 py-3.5 pl-14 border-2 rounded-xl transition-all inputStyle"
                                     placeholder="01xxxxxxxxx" type="tel" name="phone" />
                                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400">

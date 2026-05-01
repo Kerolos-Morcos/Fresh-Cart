@@ -1,5 +1,7 @@
 <script setup>
+import { useAddressStore } from '@/stores/addressesStore';
 
+const store = useAddressStore();
 </script>
 
 <template>
@@ -16,7 +18,8 @@
         <div>
             <p class="text-sm text-blue-800 font-medium">Delivery Information</p>
             <p class="text-xs text-blue-600 mt-0.5 font-medium">
-                Please ensure your address is accurate for smooth delivery
+                {{ store.selectedAddressId === 'new' ? 'Please ensure your address is accurate for smooth delivery' :
+                'Using your saved address. You can edit the details below if needed.' }}
             </p>
         </div>
     </div>
