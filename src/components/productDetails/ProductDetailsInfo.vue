@@ -111,6 +111,7 @@ watch(quantity, (val, oldVal) => {
                 <span v-if="data?.priceAfterDiscount && data?.priceAfterDiscount < data?.price"
                     class="bg-red-500 text-white text-sm px-3 py-1 rounded-full font-medium">
                     Save {{ Math.round((1 - data.priceAfterDiscount / data.price) * 100) }}%
+                    <span>(Use Promo Code)</span>
                 </span>
             </div>
             <div v-if="data?.quantity > 0" class="flex items-center gap-2 mb-6">
@@ -124,19 +125,22 @@ watch(quantity, (val, oldVal) => {
                     {{ data?.description }}
                 </p>
             </div>
-            <p v-if="!cartItem"
-                class="text-sm text-blue-600 mb-5 font-medium p-4 bg-blue-50 rounded-xl border border-blue-100">
-                <strong class="text-sm">Note:</strong> You need to add the product to the cart at least once before you
-                can change the
-                quantity.
-            </p>
-            <p v-else
-                class="text-sm text-green-600 mb-5 font-medium p-4 bg-green-50 rounded-xl border border-green-100">
-                <strong class="text-sm me-1">Great!</strong>Now you can add more products to cart. You can also go to
-                the cart page to manage added products as you like.
-            </p>
+
             <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                <label class="block text-md font-bold text-gray-700 mb-2">+ Quantity</label>
+                <p v-if="!cartItem"
+                    class="text-sm text-blue-600 mb-5 font-medium p-4 bg-blue-50 rounded-xl border border-blue-100">
+                    <strong class="text-sm">Note:</strong> You need to add the product to the cart at least once before
+                    you
+                    can change the
+                    quantity.
+                </p>
+                <p v-else
+                    class="text-sm text-green-600 mb-5 font-medium p-4 bg-green-50 rounded-xl border border-green-100">
+                    <strong class="text-sm me-1">Great!</strong>Now you can add more products to cart. You can also go
+                    to
+                    the cart page to manage added products as you like.
+                </p>
                 <div class="flex items-center gap-4">
                     <div class="flex items-center border-2 border-gray-200 rounded-lg overflow-hidden">
                         <button @click="decrease"

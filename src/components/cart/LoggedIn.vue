@@ -8,7 +8,7 @@ import TotalPriceShippingData from './TotalPriceShippingData.vue';
 const cartStore = useCartStore();
 
 function applyPromoCode() {
-    toastMessage('No Promo Codes Available!', 'info');
+    toastMessage('Not available for now, please contact us later!', 'info');
 }
 </script>
 
