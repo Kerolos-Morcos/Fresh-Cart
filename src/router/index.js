@@ -113,6 +113,12 @@ const router = createRouter({
           meta: { requiresAuth: true },
         },
         {
+          path: "forgotPassword",
+          name: "forgotPassword",
+          component: () => import("../pages/ForgotPassword.vue"),
+          meta: { requiresGuest: true, title: "Forgot Password | Fresh Cart" },
+        },
+        {
           path: "/:pathMatch(.*)*",
           name: "not-found",
           component: () => import("../pages/NotFound.vue"),
@@ -134,6 +140,7 @@ const router = createRouter({
 router.beforeEach((to, from) => {
   const authStore = useAuthStore();
   const isLoggedIn = authStore.isLoggedUser;
+  document.title = to.meta.title || "Fresh Cart";
   if (to.meta.requiresAuth && !isLoggedIn) {
     return { name: "login" };
   } else if (to.meta.requiresGuest && isLoggedIn) {

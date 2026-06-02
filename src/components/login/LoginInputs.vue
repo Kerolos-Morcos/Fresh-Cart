@@ -65,7 +65,7 @@ async function loginUser(body, { resetForm }) {
                             <label for="password" class="block text-sm font-semibold text-gray-700">Password</label>
                             <RouterLink
                                 class="text-sm text-primary-600 transition-colors duration-200 hover:text-primary-800 cursor-pointer font-medium"
-                                to="/forgetPassword">Forgot Password?</RouterLink>
+                                to="/forgotPassword">Forgot Password?</RouterLink>
                         </div>
                         <BasePasswordField name="password" placeholder="Enter your password" :showIcon="true"
                             inputClass="pl-12 py-3 border-2 border-gray-200 rounded-xl" gap="0">
