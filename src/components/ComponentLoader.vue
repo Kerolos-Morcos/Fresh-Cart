@@ -24,8 +24,8 @@ defineProps({
                 </svg>
             </div>
         </div>
-        <p class="text-gray-600 mt-0 font-medium">Loading {{ title }}...</p>
-        <p class="text-gray-400 text-sm mt-1">Just a moment</p>
+        <p class="text-gray-600 mt-4 font-medium">Loading {{ title }}...</p>
+        <p class="text-gray-400 text-sm mt-2">Just a moment</p>
     </div>
 </template>
 
