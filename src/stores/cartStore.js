@@ -79,18 +79,33 @@ export const useCartStore = defineStore("cartStore", () => {
 
   async function mergeGuestCart() {
     const guestCart = JSON.parse(localStorage.getItem("guestCart") || "[]");
+
     if (guestCart.length === 0) {
       await getUserCart();
       return;
     }
+
     mergingGuestCart.value = true;
+
     for (const product of guestCart) {
+      const productId = product._id || product.id;
+      const count = product.count || 1;
+
       await fetchData({
         url: "/v2/cart",
         method: "post",
-        data: { productId: product._id || product.id },
+        data: { productId },
       });
+
+      if (count > 1) {
+        await fetchData({
+          url: `/v2/cart/${productId}`,
+          method: "put",
+          data: { count },
+        });
+      }
     }
+
     localStorage.removeItem("guestCart");
     await getUserCart();
     mergingGuestCart.value = false;
@@ -178,19 +193,33 @@ export const useCartStore = defineStore("cartStore", () => {
       const existingCart = JSON.parse(
         localStorage.getItem("guestCart") || "[]",
       );
+
+      const productId = product.id || product._id;
+
       const cartIndex = existingCart.findIndex(
-        (p) => p.id === product.id || p._id === product._id,
+        (p) => (p.id || p._id) === productId,
       );
-      if (cartIndex !== -1) {
-        existingCart.push({ ...product, price: product.price });
+
+      if (cartIndex === -1) {
+        existingCart.push({
+          ...product,
+          count: 1,
+          price: product.price,
+        });
+      } else {
+        existingCart[cartIndex].count =
+          (existingCart[cartIndex].count || 1) + 1;
       }
+
       localStorage.setItem("guestCart", JSON.stringify(existingCart));
+
       cartData.value = existingCart;
       numOfCartItems.value = existingCart.length;
       totalCartPrice.value = existingCart.reduce(
-        (acc, p) => acc + p.count * p.price,
+        (acc, p) => acc + (p.count || 1) * p.price,
         0,
       );
+
       return { success: true };
     }
     const alreadyExists = isProductInCart(product.id || product._id);
