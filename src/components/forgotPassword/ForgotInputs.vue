@@ -9,14 +9,12 @@ import { computed, ref } from 'vue';
 import LoadingSpinner from '../LoadingSpinner.vue';
 import UpdateForgotPassword from './UpdateForgotPassword.vue';
 import { resetPasswordSchema } from '@/validations/resetPasswordSchema.js';
-import { useRouter } from 'vue-router';
 import SuccessUpdatePassword from './SuccessUpdatePassword.vue';
 
 
 const { fetchData, isLoading } = useAPI();
 const step = ref('email');
 const sentEmail = ref('');
-const router = useRouter();
 const resendLoading = ref(false);
 
 const currentSchema = computed(() => {

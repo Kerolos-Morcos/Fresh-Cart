@@ -47,6 +47,11 @@ const router = createRouter({
           meta: { breadcrumb: "Brands" },
         },
         {
+          path: "brands/:id",
+          name: "brandProducts",
+          component: () => import("../pages/Shop.vue"),
+        },
+        {
           path: "shop",
           name: "shop",
           component: () => import("../pages/Shop.vue"),
