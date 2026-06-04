@@ -1,10 +1,23 @@
 <script setup>
-import { onMounted } from 'vue';
 import Breadcrumb from './Breadcrumb.vue';
 import { useBreadcrumb } from '@/composables/useBreadcrumb';
 import { computed } from 'vue';
+import { watch } from 'vue';
 
-const { label, description, background } = defineProps(['label', 'description', 'background']);
+const {
+    label,
+    description,
+    background,
+    breadcrumbItems
+} = defineProps({
+    label: String,
+    description: String,
+    background: String,
+    breadcrumbItems: {
+        type: Array,
+        default: null
+    }
+});
 
 const { setBreadcrumb } = useBreadcrumb();
 
@@ -13,11 +26,17 @@ const backgroundStyle = computed(() => ({
         'linear-gradient(to bottom right, var(--color-primary-600), var(--color-primary-500), var(--color-primary-400))'
 }));
 
-onMounted(() => {
-    setBreadcrumb([
-        { label: label }
-    ]);
-})
+watch(
+    () => [label, breadcrumbItems],
+    () => {
+        setBreadcrumb(
+            breadcrumbItems || [
+                { label }
+            ]
+        );
+    },
+    { immediate: true, deep: true }
+);
 </script>
 
 <template>

@@ -75,11 +75,6 @@ const router = createRouter({
           component: () => import("../pages/ProductDetails.vue"),
         },
         {
-          path: "category/:id",
-          name: "categoryProducts",
-          component: () => import("../pages/Shop.vue"),
-        },
-        {
           path: "wishlist",
           name: "wishlist",
           component: () => import("../pages/Wishlist.vue"),
@@ -93,6 +88,11 @@ const router = createRouter({
           path: "categories",
           name: "categories",
           component: () => import("../pages/Categories.vue"),
+        },
+        {
+          path: "categories/:id",
+          name: "categoriesList",
+          component: () => import("../components/categories/SubCategories.vue"),
         },
         {
           path: "cart",
