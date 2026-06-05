@@ -60,7 +60,7 @@ const authStore = useAuthStore();
                     <div v-if="authStore.isLoggedUser" class="flex items-center gap-4 font-medium">
                         <RouterLink
                             class="flex items-center gap-2 text-gray-600 hover:text-primary-600 transition-colors"
-                            to="/profile">
+                            to="/profile/addresses">
                             <svg data-prefix="far" data-icon="user" class="svg-inline--fa w-3 fa-user text-xs"
                                 role="img" viewBox="0 0 448 512" aria-hidden="true">
                                 <path fill="currentColor"
