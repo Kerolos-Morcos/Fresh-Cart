@@ -1,11 +1,14 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import OffCanvas from './OffCanvas.vue';
 import Topbar from './TopBar.vue';
 import { useAuthStore } from '@/stores/authStore';
 import UserSettings from './navbar/UserSettings.vue';
 import { useCartStore } from '@/stores/cartStore';
 import { useWishlistStore } from '@/stores/wishlistStore';
+import { useAPI } from '@/composables/useAPI.js';
+import { useRoute } from 'vue-router';
+import { computed } from 'vue';
 
 const authStore = useAuthStore();
 const cartStore = useCartStore();
@@ -14,6 +17,12 @@ const wishlistStore = useWishlistStore();
 const isCanvasOpen = ref(false);
 const isOpen = ref(false);
 
+// Active Category
+const route = useRoute();
+function isActiveCategory(categoryId) {
+    return route.query.category === categoryId;
+}
+
 function toggleCanvas() {
     isCanvasOpen.value = !isCanvasOpen.value
 }
@@ -21,6 +30,37 @@ function toggleCanvas() {
 function closeDropdown() {
     isOpen.value = false;
 }
+
+// Categories API
+const categories = ref([]);
+const { fetchData } = useAPI();
+
+async function fetchCategories() {
+    const res = await fetchData({
+        url: '/v1/categories',
+        method: 'get'
+    });
+    if (res) {
+        categories.value = res.data;
+    }
+}
+
+const visibleCategoryNames = [
+    'Electronics',
+    "Women's Fashion",
+    "Men's Fashion",
+    'Beauty & Health'
+];
+
+const displayedCategories = computed(() => {
+    return categories.value.filter(category =>
+        visibleCategoryNames.includes(category.name)
+    );
+});
+
+onMounted(() => {
+    fetchCategories();
+});
 </script>
 
 <template>
@@ -54,8 +94,10 @@ function closeDropdown() {
                         <RouterLink class="text-gray-700 hover:text-primary-600 font-medium transition-colors" to="/">
                             Home
                         </RouterLink>
-                        <RouterLink class="text-gray-700 hover:text-primary-600 font-medium transition-colors"
-                            to="/shop">
+                        <RouterLink to="/shop" active-class="" exact-active-class=""
+                            class="text-gray-700 hover:text-primary-600 font-medium transition-colors" :class="route.path === '/shop' && !route.query.category
+                                ? 'text-primary-600'
+                                : ''">
                             Shop
                         </RouterLink>
                         <div class="relative group cursor-pointer" @mouseenter="isOpen = true;"
@@ -72,21 +114,17 @@ function closeDropdown() {
                             </button>
                             <div v-show="isOpen" class="absolute top-full left-0 pt-1 transition-all duration-200">
                                 <div class="bg-white border border-gray-100 rounded-xl shadow-xl py-2 min-w-50">
-                                    <RouterLink @click="closeDropdown"
-                                        class="block px-4 py-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
-                                        to="/categories">All Categories</RouterLink>
-                                    <RouterLink @click="closeDropdown"
-                                        class="block px-4 py-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
-                                        to="/products?category=6439d58a0049ad0b52b9003f">Electronics</RouterLink>
-                                    <RouterLink @click="closeDropdown"
-                                        class="block px-4 py-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
-                                        to="/products?category=6439d5b90049ad0b52b90048">Women's Fashion</RouterLink>
-                                    <RouterLink @click="closeDropdown"
-                                        class="block px-4 py-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
-                                        to="/products?category=6439d2d167d9aa4ca970649f">Men's Fashion</RouterLink>
-                                    <RouterLink @click="closeDropdown"
-                                        class="block px-4 py-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
-                                        to="/products?category=6439d40367d9aa4ca97064a8">Beauty &amp; Health
+                                    <RouterLink to="/categories" @click="closeDropdown"
+                                        class="block px-4 py-2.5 text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors">
+                                        All Categories
+                                    </RouterLink>
+                                    <RouterLink v-for="category in displayedCategories" :key="category._id"
+                                        @click="closeDropdown" active-class="" exact-active-class=""
+                                        class="block px-4 py-2.5 transition-colors" :class="route.query.category === category._id
+                                            ? 'text-primary-600'
+                                            : 'text-gray-600 hover:text-primary-600 hover:bg-primary-50'"
+                                        :to="`/shop?category=${category._id}`">
+                                        {{ category.name }}
                                     </RouterLink>
                                 </div>
                             </div>

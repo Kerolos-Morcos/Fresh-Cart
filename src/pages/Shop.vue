@@ -8,8 +8,10 @@ import { useRoute } from 'vue-router';
 const route = useRoute();
 const { fetchData } = useAPI();
 
+const category = ref(null);
 const subCategory = ref(null);
 const subCategoryId = computed(() => route.query.subcategory || null);
+const categoryId = computed(() => route.query.category || null);
 
 const headerLabel = computed(() =>
     subCategory.value?.name || 'All Products'
@@ -34,22 +36,23 @@ const breadcrumbItems = computed(() => {
     ];
 });
 
-async function fetchSubCategory() {
-    if (!subCategoryId.value) {
-        subCategory.value = null;
+async function fetchFilterData() {
+    subCategory.value = null;
+    category.value = null;
+    if (subCategoryId.value) {
+        const res = await fetchData({ url: `/v1/subcategories/${subCategoryId.value}` });
+        if (res) subCategory.value = res.data;
         return;
     }
-    const res = await fetchData({
-        url: `/v1/subcategories/${subCategoryId.value}`
-    });
-    if (res) {
-        subCategory.value = res.data || res;
+    if (categoryId.value) {
+        const res = await fetchData({ url: `/v1/categories/${categoryId.value}` });
+        if (res) category.value = res.data;
     }
 }
 
 watch(
-    subCategoryId,
-    fetchSubCategory,
+    () => [subCategoryId.value, categoryId.value],
+    fetchFilterData,
     { immediate: true }
 );
 </script>
@@ -65,7 +68,8 @@ watch(
             </svg>
         </template>
     </PagesHeaderComponent>
-    <Products :show="false" :totalProducts="true" :subcategoryName="subCategory?.name" :subcategoryId="subCategoryId" />
+    <Products :show="false" :totalProducts="true" :subcategoryName="subCategory?.name" :subcategoryId="subCategoryId"
+        :categoryName="category?.name" :categoryId="categoryId" />
 </template>
 
 <style scoped></style>
