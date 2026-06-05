@@ -63,7 +63,7 @@ const footerColumns = computed(() => [
     {
         title: "Account",
         links: [
-            { label: "My Account", active: route.path === '/profile', to: "/profile" },
+            { label: "My Account", active: route.path === '/profile/addresses', to: "/profile/addresses" },
             { label: "Orders", active: route.path === '/orders', to: "/orders" },
             { label: "Wishlist", active: route.path === '/wishlist', to: "/wishlist" },
             { label: "Shopping Cart", active: route.path === '/cart', to: "/cart" },
