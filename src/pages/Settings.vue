@@ -2,7 +2,6 @@
 import ProfileInfo from '@/components/settings/ProfileInfo.vue';
 import UpdateCurrentPassword from '@/components/settings/UpdateCurrentPassword.vue';
 
-
 </script>
 
 <template>

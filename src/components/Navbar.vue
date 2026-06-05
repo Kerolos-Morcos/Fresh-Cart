@@ -19,9 +19,6 @@ const isOpen = ref(false);
 
 // Active Category
 const route = useRoute();
-function isActiveCategory(categoryId) {
-    return route.query.category === categoryId;
-}
 
 function toggleCanvas() {
     isCanvasOpen.value = !isCanvasOpen.value

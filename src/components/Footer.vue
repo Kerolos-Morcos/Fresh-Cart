@@ -1,53 +1,95 @@
 <script setup>
+import { computed, onMounted, ref } from 'vue';
 import FooterColumn from './footer/FooterColumn.vue';
 import FooterContact from './footer/FooterContact.vue';
 import FooterPayments from './footer/FooterPayments.vue';
 import FooterSocial from './footer/FooterSocial.vue';
 import SpecialServices from './footer/SpecialServices.vue';
+import { useAPI } from '@/composables/useAPI.js';
+import { useRoute } from 'vue-router';
 
-const footerColumns = [
+// Categories API
+const categories = ref([]);
+const { fetchData } = useAPI();
+const route = useRoute();
+
+async function fetchCategories() {
+    const res = await fetchData({
+        url: '/v1/categories',
+    });
+    if (res) {
+        categories.value = res.data;
+    }
+}
+
+const visibleCategoryNames = [
+    'Electronics',
+    "Women's Fashion",
+    "Men's Fashion",
+    'Beauty & Health'
+];
+
+const displayedCategories = computed(() =>
+    categories.value.filter(c => visibleCategoryNames.includes(c.name))
+);
+
+function categoryLink(name) {
+    const category = displayedCategories.value.find(c => c.name === name);
+    return {
+        label: name,
+        to: category ? `/shop?category=${category._id}` : '/shop',
+        active: category ? route.query.category === category._id : false
+    };
+}
+
+onMounted(() => {
+    fetchCategories();
+});
+
+
+const footerColumns = computed(() => [
     {
         title: "Shop",
         links: [
-            { label: "All Products", to: "/shop" },
-            { label: "Categories", to: "/categories" },
-            { label: "Brands", to: "/brands" },
-            { label: "Electronics", to: "/products?category=electronics" },
-            { label: "Men's Fashion", to: "/products?category=mens-fashion" },
-            { label: "Women's Fashion", to: "/products?category=womens-fashion" },
+            { label: "All Products", to: "/shop", active: route.path === '/shop' && !route.query.category },
+            { label: "Categories", to: "/categories", active: route.path === '/categories' },
+            { label: "Brands", to: "/brands", active: route.path === '/brands' },
+            categoryLink('Electronics'),
+            categoryLink("Men's Fashion"),
+            categoryLink("Women's Fashion"),
+            categoryLink('Beauty & Health'),
         ]
     },
     {
         title: "Account",
         links: [
-            { label: "My Account", to: "/profile" },
-            { label: "Orders", to: "/orders" },
-            { label: "Wishlist", to: "/wishlist" },
-            { label: "Shopping Cart", to: "/cart" },
-            { label: "Sign In", to: "/login" },
-            { label: "Create Account", to: "/register" },
+            { label: "My Account", active: route.path === '/profile', to: "/profile" },
+            { label: "Orders", active: route.path === '/orders', to: "/orders" },
+            { label: "Wishlist", active: route.path === '/wishlist', to: "/wishlist" },
+            { label: "Shopping Cart", active: route.path === '/cart', to: "/cart" },
+            { label: "Sign In", active: route.path === '/login', to: "/login" },
+            { label: "Create Account", active: route.path === '/register', to: "/register" },
         ]
     },
     {
         title: "Support",
         links: [
-            { label: "Contact Us", to: "/contact" },
-            { label: "Help Center", to: "/help" },
-            { label: "Shipping Info", to: "/shipping" },
-            { label: "Returns & Refunds", to: "/returns" },
-            { label: "Track Order", to: "/track" },
+            { label: "Contact Us", active: route.path === '/contact', to: "/contact" },
+            { label: "Help Center", active: route.path === '/help', to: "/help" },
+            { label: "Shipping Info", active: route.path === '/shipping', to: "/shipping" },
+            { label: "Returns & Refunds", active: route.path === '/returns', to: "/returns" },
+            { label: "Track Order", active: route.path === '/track', to: "/track" },
         ]
     },
     {
         title: "Legal",
         links: [
-            { label: "Privacy Policy", to: "/privacy" },
-            { label: "Terms Of Service", to: "/terms" },
-            { label: "Cookie Policy", to: "/cookie" },
+            { label: "Privacy Policy", active: route.path === '/privacy', to: "/privacy" },
+            { label: "Terms Of Service", active: route.path === '/terms', to: "/terms" },
+            { label: "Cookie Policy", active: route.path === '/cookie', to: "/cookie" },
         ]
     }
-]
-
+]);
 </script>
 
 <template>
