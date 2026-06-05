@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { ref } from 'vue';
 import OffCanvas from './OffCanvas.vue';
 import Topbar from './TopBar.vue';

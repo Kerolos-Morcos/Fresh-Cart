@@ -57,6 +57,12 @@ const router = createRouter({
           component: () => import("../pages/Shop.vue"),
           meta: { breadcrumb: "Shop" },
         },
+        // {
+        //   path: "search",
+        //   name: "search",
+        //   component: () => import("../pages/Search.vue"),
+        //   meta: { breadcrumb: "Search" },
+        // },
         {
           path: "register",
           name: "register",

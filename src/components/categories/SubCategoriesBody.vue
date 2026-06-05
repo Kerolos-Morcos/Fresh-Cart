@@ -41,7 +41,7 @@ onMounted(() => {
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             <RouterLink v-for="category in data" :key="category._id"
                 class="group bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-xl hover:border-primary-200 transition-all duration-300 hover:-translate-y-1"
-                :to="`/products?subcategory=${category._id}`">
+                :to="{ name: 'shop', query: { subcategory: category._id } }">
                 <div
                     class="w-14 h-14 rounded-xl bg-primary-50 flex items-center justify-center mb-4 group-hover:bg-primary-100 transition-colors">
                     <svg data-prefix="fas" data-icon="folder-open"

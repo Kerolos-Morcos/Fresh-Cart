@@ -1,12 +1,61 @@
 <script setup>
 import PagesHeaderComponent from '@/components/PagesHeaderComponent.vue';
 import Products from '@/components/shop/Products.vue';
+import { useAPI } from '@/composables/useAPI';
+import { computed, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
+const { fetchData } = useAPI();
 
+const subCategory = ref(null);
+const subCategoryId = computed(() => route.query.subcategory || null);
+
+const headerLabel = computed(() =>
+    subCategory.value?.name || 'All Products'
+);
+
+const headerDescription = computed(() =>
+    subCategory.value?.name
+        ? `Browse ${subCategory.value.name}`
+        : 'Explore our complete product collection'
+);
+
+const breadcrumbItems = computed(() => {
+    if (subCategory.value?.name) {
+        return [
+            { label: 'Categories', to: '/categories' },
+            { label: subCategory.value.name }
+        ];
+    }
+    return [
+        { label: 'Shop' },
+        { label: 'All Products' }
+    ];
+});
+
+async function fetchSubCategory() {
+    if (!subCategoryId.value) {
+        subCategory.value = null;
+        return;
+    }
+    const res = await fetchData({
+        url: `/v1/subcategories/${subCategoryId.value}`
+    });
+    if (res) {
+        subCategory.value = res.data || res;
+    }
+}
+
+watch(
+    subCategoryId,
+    fetchSubCategory,
+    { immediate: true }
+);
 </script>
 
 <template>
-    <PagesHeaderComponent label="All Products" description="Explore our complete product collection">
+    <PagesHeaderComponent :label="headerLabel" :description="headerDescription" :breadcrumb-items="breadcrumbItems">
         <template #icon>
             <svg data-prefix="fas" data-icon="box-open" class="svg-inline--fa fa-box-open text-3xl" role="img"
                 viewBox="0 0 640 512" aria-hidden="true">
@@ -16,7 +65,7 @@ import Products from '@/components/shop/Products.vue';
             </svg>
         </template>
     </PagesHeaderComponent>
-    <Products :show="false" :totalProducts="true" />
+    <Products :show="false" :totalProducts="true" :subcategoryName="subCategory?.name" :subcategoryId="subCategoryId" />
 </template>
 
 <style scoped></style>
