@@ -4,6 +4,7 @@ import SpecialSectionTitle from '../SpecialSectionTitle.vue';
 import { computed, onMounted, watch } from 'vue';
 import ProductCard from './ProductCard.vue';
 import ComponentLoader from '../ComponentLoader.vue';
+import NoProductsFound from './NoProductsFound.vue';
 
 const { fetchData, error, data, isLoading } = useAPI();
 const { show, totalProducts, subcategoryName, subcategoryId, categoryName, categoryId } = defineProps({
@@ -109,6 +110,8 @@ watch(
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 <ProductCard v-for="product in data" :key="product.id" :product="product" />
             </div>
+            <!-- No Products Found -->
+            <NoProductsFound v-if="!isLoading && data?.length === 0" />
         </div>
     </section>
 </template>
