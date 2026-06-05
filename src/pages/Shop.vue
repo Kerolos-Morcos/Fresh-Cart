@@ -10,8 +10,10 @@ const { fetchData } = useAPI();
 
 const category = ref(null);
 const subCategory = ref(null);
+const brand = ref(null);
 const subCategoryId = computed(() => route.query.subcategory || null);
 const categoryId = computed(() => route.query.category || null);
+const brandId = computed(() => route.query.brand || null);
 const isHeaderLoading = ref(false);
 
 const headerLabel = computed(() => {
@@ -19,6 +21,7 @@ const headerLabel = computed(() => {
     return (
         subCategory.value?.name ||
         category.value?.name ||
+        brand.value?.name ||
         'All Products'
     );
 });
@@ -30,6 +33,9 @@ const headerDescription = computed(() => {
     }
     if (category.value?.name) {
         return `Browse products in ${category.value.name}`;
+    }
+    if (brand.value?.name) {
+        return `Browse products from ${brand.value.name}`;
     }
     return 'Explore our complete product collection';
 });
@@ -48,6 +54,12 @@ const breadcrumbItems = computed(() => {
             { label: category.value.name }
         ];
     }
+    if (brand.value?.name) {
+        return [
+            { label: 'Brands', to: '/brands' },
+            { label: brand.value.name }
+        ];
+    }
     return [
         { label: 'Shop' },
         { label: 'All Products' }
@@ -58,6 +70,7 @@ async function fetchFilterData() {
     isHeaderLoading.value = true;
     subCategory.value = null;
     category.value = null;
+    brand.value = null;
     if (subCategoryId.value) {
         const res = await fetchData({ url: `/v1/subcategories/${subCategoryId.value}` });
         if (res) subCategory.value = res.data;
@@ -68,11 +81,15 @@ async function fetchFilterData() {
         const res = await fetchData({ url: `/v1/categories/${categoryId.value}` });
         if (res) category.value = res.data;
     }
+    if (brandId.value) {
+        const res = await fetchData({ url: `/v1/brands/${brandId.value}` });
+        if (res) brand.value = res.data;
+    }
     isHeaderLoading.value = false;
 }
 
 watch(
-    () => [subCategoryId.value, categoryId.value],
+    () => [subCategoryId.value, categoryId.value, brandId.value],
     fetchFilterData,
     { immediate: true }
 );
@@ -82,6 +99,7 @@ watch(
     <PagesHeaderComponent :label="headerLabel" :description="headerDescription" :breadcrumb-items="breadcrumbItems">
         <template #icon>
             <img v-if="category?.image" :alt="category?.slug" class="w-12 h-12 object-contain" :src="category.image">
+            <img v-else-if="brand?.image" :alt="brand?.slug" class="w-12 h-12 object-contain" :src="brand.image">
             <svg v-else data-prefix="fas" data-icon="box-open" class="svg-inline--fa fa-box-open text-3xl" role="img"
                 viewBox="0 0 640 512" aria-hidden="true">
                 <path fill="currentColor"
@@ -91,7 +109,7 @@ watch(
         </template>
     </PagesHeaderComponent>
     <Products :show="false" :totalProducts="true" :subcategoryName="subCategory?.name" :subcategoryId="subCategoryId"
-        :categoryName="category?.name" :categoryId="categoryId" />
+        :categoryName="category?.name" :categoryId="categoryId" :brandName="brand?.name" :brandId="brandId" />
 </template>
 
 <style scoped></style>

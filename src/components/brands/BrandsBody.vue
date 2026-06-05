@@ -28,7 +28,7 @@ onMounted(() => {
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-5">
             <RouterLink v-for="brand in data" :key="brand.id"
                 class="group bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 shadow-sm hover:shadow-xl hover:border-violet-200 transition-all duration-300 hover:-translate-y-1"
-                :to="`/brands/${brand._id}`">
+                :to="`/shop?brand=${brand._id}`">
                 <div
                     class="aspect-square rounded-xl overflow-hidden bg-gray-50 mb-3 p-4 flex items-center justify-center">
                     <img :alt="brand.slug"

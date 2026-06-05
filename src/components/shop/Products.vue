@@ -7,7 +7,7 @@ import ComponentLoader from '../ComponentLoader.vue';
 import NoProductsFound from './NoProductsFound.vue';
 
 const { fetchData, error, data, isLoading } = useAPI();
-const { show, totalProducts, subcategoryName, subcategoryId, categoryName, categoryId } = defineProps({
+const { show, totalProducts, subcategoryName, subcategoryId, categoryName, categoryId, brandName, brandId } = defineProps({
     show: {
         type: Boolean,
         default: true
@@ -31,7 +31,15 @@ const { show, totalProducts, subcategoryName, subcategoryId, categoryName, categ
     categoryId: {
         type: String,
         default: null
-    }
+    },
+    brandName: {
+        type: String,
+        default: ''
+    },
+    brandId: {
+        type: String,
+        default: null
+    },
 })
 
 async function fetchAllProducts() {
@@ -41,6 +49,8 @@ async function fetchAllProducts() {
         url = `/v1/products?subcategory=${subcategoryId}`;
     } else if (categoryId) {
         url = `/v1/products?category=${categoryId}`;
+    } else if (brandId) {
+        url = `/v1/products?brand=${brandId}`;
     }
     const res = await fetchData({ url });
     if (res) {
@@ -52,7 +62,7 @@ async function fetchAllProducts() {
 }
 
 const activeFilterName = computed(() => {
-    return subcategoryName || categoryName || '';
+    return subcategoryName || categoryName || brandName || '';
 });
 
 onMounted(() => {
@@ -60,7 +70,7 @@ onMounted(() => {
 });
 
 watch(
-    () => [subcategoryName, categoryName, subcategoryId, categoryId],
+    () => [subcategoryName, categoryName, subcategoryId, categoryId, brandName, brandId],
     () => {
         fetchAllProducts();
     }
@@ -83,10 +93,20 @@ watch(
                     Active Filters:
                 </span>
                 <RouterLink
-                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium hover:bg-emerald-200 transition-colors"
-                    to="/shop">
-                    <svg data-prefix="fas" data-icon="folder-open" class="w-3.5 svg-inline--fa fa-folder-open text-xs"
-                        role="img" viewBox="0 0 576 512" aria-hidden="true">
+                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+                    :class="brandId
+                        ? ['bg-violet-100!', 'text-violet-700!', 'hover:bg-violet-200!']
+                        : ['bg-emerald-100!', 'text-emerald-700!', 'hover:bg-emerald-200!']" to="/shop">
+                    <svg v-if="brandName" data-prefix="fas" data-icon="tags"
+                        class="w-3.5 svg-inline--fa fa-tags text-xs" role="img" viewBox="0 0 576 512"
+                        aria-hidden="true">
+                        <path fill="currentColor"
+                            d="M401.2 39.1L549.4 189.4c27.7 28.1 27.7 73.1 0 101.2L393 448.9c-9.3 9.4-24.5 9.5-33.9 .2s-9.5-24.5-.2-33.9L515.3 256.8c9.2-9.3 9.2-24.4 0-33.7L367 72.9c-9.3-9.4-9.2-24.6 .2-33.9s24.6-9.2 33.9 .2zM32.1 229.5L32.1 96c0-35.3 28.7-64 64-64l133.5 0c17 0 33.3 6.7 45.3 18.7l144 144c25 25 25 65.5 0 90.5L285.4 418.7c-25 25-65.5 25-90.5 0l-144-144c-12-12-18.7-28.3-18.7-45.3zm144-85.5a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z">
+                        </path>
+                    </svg>
+                    <svg v-else data-prefix="fas" data-icon="folder-open"
+                        class="w-3.5 svg-inline--fa fa-folder-open text-xs" role="img" viewBox="0 0 576 512"
+                        aria-hidden="true">
                         <path fill="currentColor"
                             d="M56 225.6L32.4 296.2 32.4 96c0-35.3 28.7-64 64-64l138.7 0c13.8 0 27.3 4.5 38.4 12.8l38.4 28.8c5.5 4.2 12.3 6.4 19.2 6.4l117.3 0c35.3 0 64 28.7 64 64l0 16-365.4 0c-41.3 0-78 26.4-91.1 65.6zM477.8 448L99 448c-32.8 0-55.9-32.1-45.5-63.2l48-144C108 221.2 126.4 208 147 208l378.8 0c32.8 0 55.9 32.1 45.5 63.2l-48 144c-6.5 19.6-24.9 32.8-45.5 32.8z">
                         </path>
