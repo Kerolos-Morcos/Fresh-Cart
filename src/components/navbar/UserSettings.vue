@@ -62,7 +62,7 @@ onClickOutside(dropdownRef, () => isOpen.value = false)
                 <div class="py-2">
                     <RouterLink
                         class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
-                        to="/profile" @click="closeDropdown">
+                        to="/profile/addresses" @click="closeDropdown">
                         <svg data-prefix="far" data-icon="user" class="svg-inline--fa fa-user w-4 text-gray-400"
                             role="img" viewBox="0 0 448 512" aria-hidden="true">
                             <path fill="currentColor"
