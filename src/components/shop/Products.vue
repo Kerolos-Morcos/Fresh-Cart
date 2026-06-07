@@ -5,9 +5,13 @@ import { computed, onMounted, watch } from 'vue';
 import ProductCard from './ProductCard.vue';
 import ComponentLoader from '../ComponentLoader.vue';
 import NoProductsFound from './NoProductsFound.vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const { fetchData, error, data, isLoading } = useAPI();
-const { show, totalProducts, subcategoryName, subcategoryId, categoryName, categoryId, brandName, brandId } = defineProps({
+const route = useRoute();
+const router = useRouter();
+const emit = defineEmits(['pagination-change']);
+const { show, totalProducts, subcategoryName, subcategoryId, categoryName, categoryId, brandName, brandId, specialProductsLayout, productSectionVerticalPadding, productSectionHorizontalPadding, limit, enablePagination } = defineProps({
     show: {
         type: Boolean,
         default: true
@@ -40,6 +44,26 @@ const { show, totalProducts, subcategoryName, subcategoryId, categoryName, categ
         type: String,
         default: null
     },
+    specialProductsLayout: {
+        type: String,
+        default: ''
+    },
+    productSectionVerticalPadding: {
+        type: String,
+        default: ''
+    },
+    productSectionHorizontalPadding: {
+        type: String,
+        default: ''
+    },
+    limit: {
+        type: Number,
+        default: null
+    },
+    enablePagination: {
+        type: Boolean,
+        default: false
+    }
 })
 
 async function fetchAllProducts() {
@@ -52,9 +76,39 @@ async function fetchAllProducts() {
     } else if (brandId) {
         url = `/v1/products?brand=${brandId}`;
     }
+    if (enablePagination && limit > 0) {
+        const page = route.query.page || 1;
+        const separator = url.includes('?') ? '&' : '?';
+        url += `${separator}page=${page}&limit=${limit}`;
+    }
     const res = await fetchData({ url });
     if (res) {
         data.value = res.data;
+        const shouldPaginate = enablePagination && limit > 0;
+        if (!shouldPaginate) {
+            emit('pagination-change', null);
+            isLoading.value = false;
+            return;
+        }
+        if (res.data.length === 0 && Number(route.query.page) > 1) {
+            await router.replace({
+                query: {
+                    ...route.query,
+                    page: 1
+                }
+            });
+            isLoading.value = false;
+            return;
+        }
+        const currentPage = Number(route.query.page) || 1;
+        const numberOfPages =
+            res.data.length < limit
+                ? currentPage
+                : res.metadata?.numberOfPages || 1;
+        emit('pagination-change', {
+            currentPage,
+            numberOfPages,
+        });
     } else if (error.value) {
         console.error("Error fetching products:", error.value);
     }
@@ -70,7 +124,7 @@ onMounted(() => {
 });
 
 watch(
-    () => [subcategoryName, categoryName, subcategoryId, categoryId, brandName, brandId],
+    () => [subcategoryName, categoryName, subcategoryId, categoryId, brandName, brandId, route.query.page],
     () => {
         fetchAllProducts();
     }
@@ -79,8 +133,8 @@ watch(
 
 <template>
     <ComponentLoader v-if="isLoading" :title="'Products'" bgColor="bg-primary-50" iconColor="text-primary-600" />
-    <section v-else class="py-10">
-        <div class="container mx-auto px-4">
+    <section v-else class="py-10" :class="productSectionVerticalPadding">
+        <div class="container mx-auto px-4" :class="productSectionHorizontalPadding">
             <!-- Active Filters -->
             <div v-show="activeFilterName" class="mb-6 flex items-center gap-3 flex-wrap">
                 <span class="flex items-center gap-2 text-sm font-medium text-gray-600">
@@ -127,7 +181,8 @@ watch(
                 products</div>
             <SpecialSectionTitle v-show="show" :show-line="true" :section-title="'Featured'"
                 :special-title="'Products'" />
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+                :class="specialProductsLayout">
                 <ProductCard v-for="product in data" :key="product.id" :product="product" />
             </div>
             <!-- No Products Found -->
