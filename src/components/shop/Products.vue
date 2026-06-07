@@ -10,7 +10,7 @@ import { useRoute, useRouter } from 'vue-router';
 const { fetchData, error, data, isLoading } = useAPI();
 const route = useRoute();
 const router = useRouter();
-const emit = defineEmits(['pagination-change']);
+const emit = defineEmits(['pagination-change', 'results-count']);
 const searchQuery = computed(() =>
     String(route.query.q || '').toLowerCase().trim()
 );
@@ -129,6 +129,7 @@ async function fetchAllProducts() {
     if (res) {
         data.value = res.data;
         if (searchQuery.value) {
+            emit('results-count', filteredProducts.value.length);
             const currentPage = Number(route.query.page) || 1;
             const perPage = limit || 8;
             const numberOfPages = Math.ceil(filteredProducts.value.length / perPage) || 1;
@@ -138,6 +139,8 @@ async function fetchAllProducts() {
             });
             isLoading.value = false;
             return;
+        } else {
+            emit('results-count', data.value?.length || 0);
         }
         const shouldPaginate = enablePagination && limit > 0;
         if (!shouldPaginate) {
@@ -171,7 +174,7 @@ async function fetchAllProducts() {
 }
 
 const activeFilterName = computed(() => {
-    return subcategoryName || categoryName || brandName || '';
+    return searchQuery.value || subcategoryName || categoryName || brandName || '';
 });
 
 onMounted(() => {
@@ -203,9 +206,11 @@ watch(
                 </span>
                 <RouterLink
                     class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
-                    :class="brandId
-                        ? ['bg-violet-100!', 'text-violet-700!', 'hover:bg-violet-200!']
-                        : ['bg-emerald-100!', 'text-emerald-700!', 'hover:bg-emerald-200!']" to="/shop">
+                    :class="searchQuery
+                        ? ['bg-blue-100!', 'text-blue-700!', 'hover:bg-blue-200!'] : brandId
+                            ? ['bg-violet-100!', 'text-violet-700!', 'hover:bg-violet-200!']
+                            : ['bg-emerald-100!', 'text-emerald-700!', 'hover:bg-emerald-200!']"
+                    :to="searchQuery ? '/search' : '/shop'">
                     <svg v-if="brandName" data-prefix="fas" data-icon="tags"
                         class="w-3.5 svg-inline--fa fa-tags text-xs" role="img" viewBox="0 0 576 512"
                         aria-hidden="true">
@@ -213,7 +218,7 @@ watch(
                             d="M401.2 39.1L549.4 189.4c27.7 28.1 27.7 73.1 0 101.2L393 448.9c-9.3 9.4-24.5 9.5-33.9 .2s-9.5-24.5-.2-33.9L515.3 256.8c9.2-9.3 9.2-24.4 0-33.7L367 72.9c-9.3-9.4-9.2-24.6 .2-33.9s24.6-9.2 33.9 .2zM32.1 229.5L32.1 96c0-35.3 28.7-64 64-64l133.5 0c17 0 33.3 6.7 45.3 18.7l144 144c25 25 25 65.5 0 90.5L285.4 418.7c-25 25-65.5 25-90.5 0l-144-144c-12-12-18.7-28.3-18.7-45.3zm144-85.5a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z">
                         </path>
                     </svg>
-                    <svg v-else data-prefix="fas" data-icon="folder-open"
+                    <svg v-else-if="!searchQuery" data-prefix="fas" data-icon="folder-open"
                         class="w-3.5 svg-inline--fa fa-folder-open text-xs" role="img" viewBox="0 0 576 512"
                         aria-hidden="true">
                         <path fill="currentColor"
@@ -228,7 +233,8 @@ watch(
                         </path>
                     </svg>
                 </RouterLink>
-                <RouterLink class="text-sm font-medium text-gray-500 hover:text-gray-700 underline" to="/shop">
+                <RouterLink class="text-sm font-medium text-gray-500 hover:text-gray-700 underline"
+                    :to="searchQuery ? '/search' : '/shop'">
                     Clear all
                 </RouterLink>
             </div>

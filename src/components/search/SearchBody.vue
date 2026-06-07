@@ -9,6 +9,7 @@ import { ref, computed } from 'vue';
 const pagination = ref(null);
 const productsLayout = ref('grid');
 const sortValue = ref('');
+const emit = defineEmits(['results-count']);
 
 // Products Layout
 const productsClasses = computed(() => {
@@ -45,7 +46,7 @@ const productsClasses = computed(() => {
                     <Products :show="false" :special-products-layout="productsClasses"
                         :product-section-vertical-padding="'py-2!'" :product-section-horizontal-padding="'px-0!'"
                         :limit="12" :enable-pagination="true" @pagination-change="pagination = $event"
-                        :sort-by="sortValue" />
+                        :sort-by="sortValue" @results-count="emit('results-count', $event)" />
                     <!-- Pagination -->
                     <Pagination v-if="pagination && pagination.numberOfPages > 1" :pagination="pagination" />
                 </main>
