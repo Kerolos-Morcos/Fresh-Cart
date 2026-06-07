@@ -1,11 +1,21 @@
 <script setup>
+import { useSearch } from '@/composables/useSearch';
+
 defineProps(["open", "cartStore", "wishlistStore"]);
 const emits = defineEmits(["close"]);
+
+// Search
+const { searchValue, submitSearch } = useSearch();
 
 function closeSide(e) {
     if (e.target.closest('a')) {
         emits('close')
     }
+}
+
+function handleSearch() {
+    submitSearch();
+    emits('close');
 }
 </script>
 
@@ -30,13 +40,13 @@ function closeSide(e) {
                         </svg>
                     </button>
                 </div>
-                <form class="p-4 border-b border-gray-100">
+                <form @submit.prevent="handleSearch" class="p-4 border-b border-gray-100">
                     <div class="relative">
-                        <input type="text" placeholder="Search products..."
+                        <input v-model="searchValue" type="text" placeholder="Search products..."
                             class="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 text-sm"
                             value="">
                         <button type="submit"
-                            class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-primary-600 text-white flex items-center justify-center">
+                            class="cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-primary-600 text-white flex items-center justify-center">
                             <svg data-prefix="fas" data-icon="magnifying-glass"
                                 class="svg-inline--fa fa-magnifying-glass w-3.5 h-3.5" role="img" viewBox="0 0 512 512"
                                 aria-hidden="true">

@@ -9,6 +9,7 @@ import { useWishlistStore } from '@/stores/wishlistStore';
 import { useAPI } from '@/composables/useAPI.js';
 import { useRoute } from 'vue-router';
 import { computed } from 'vue';
+import { useSearch } from '@/composables/useSearch.js';
 
 const authStore = useAuthStore();
 const cartStore = useCartStore();
@@ -19,6 +20,9 @@ const isOpen = ref(false);
 
 // Active Category
 const route = useRoute();
+
+// Search
+const { searchValue, submitSearch } = useSearch();
 
 function toggleCanvas() {
     isCanvasOpen.value = !isCanvasOpen.value
@@ -70,13 +74,13 @@ onMounted(() => {
                         <img alt="FreshCart" loading="lazy" width="160" height="31" class="h-6 lg:h-8 w-auto"
                             src="../assets/images/freshcart-logo.49f1b44d.svg">
                     </RouterLink>
-                    <form class="hidden lg:flex flex-1 max-w-2xl">
+                    <form @submit.prevent="submitSearch" class="hidden lg:flex flex-1 max-w-2xl">
                         <div class="relative w-full">
-                            <input type="text" placeholder="Search for products, brands and more..."
-                                class="w-full px-5 py-3 pr-12 rounded-full border border-gray-200 bg-gray-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm"
-                                value="">
+                            <input v-model="searchValue" type="text"
+                                placeholder="Search for products, brands and more..."
+                                class="w-full px-5 py-3 pr-12 rounded-full border border-gray-200 bg-gray-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm">
                             <button type="submit"
-                                class="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-primary-600 text-white flex items-center justify-center hover:bg-primary-700 transition-colors"><svg
+                                class="cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-primary-600 text-white flex items-center justify-center hover:bg-primary-700 transition-colors"><svg
                                     data-prefix="fas" data-icon="magnifying-glass"
                                     class="svg-inline--fa fa-magnifying-glass w-3.5 h-3.5" role="img"
                                     viewBox="0 0 512 512" aria-hidden="true">
