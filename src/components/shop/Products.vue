@@ -11,7 +11,41 @@ const { fetchData, error, data, isLoading } = useAPI();
 const route = useRoute();
 const router = useRouter();
 const emit = defineEmits(['pagination-change']);
-const { show, totalProducts, subcategoryName, subcategoryId, categoryName, categoryId, brandName, brandId, specialProductsLayout, productSectionVerticalPadding, productSectionHorizontalPadding, limit, enablePagination } = defineProps({
+const searchQuery = computed(() =>
+    String(route.query.q || '').toLowerCase().trim()
+);
+const allProducts = computed(() => {
+    return Array.isArray(data.value) ? data.value : [];
+});
+
+const filteredProducts = computed(() => {
+    if (!searchQuery.value) return allProducts.value;
+    return allProducts.value.filter(product => {
+        const title = product.title?.toLowerCase() || '';
+        const brand = product.brand?.name?.toLowerCase() || '';
+        const category = product.category?.name?.toLowerCase() || '';
+        const subcategory = Array.isArray(product.subcategory)
+            ? product.subcategory.map(s => s.name?.toLowerCase()).join(' ')
+            : '';
+        return (
+            title.includes(searchQuery.value) ||
+            brand.includes(searchQuery.value) ||
+            category.includes(searchQuery.value) ||
+            subcategory.includes(searchQuery.value)
+        );
+    });
+});
+
+const displayedProducts = computed(() => {
+    if (!searchQuery.value) return filteredProducts.value;
+    const page = Number(route.query.page) || 1;
+    const perPage = limit || 8;
+    const start = (page - 1) * perPage;
+    const end = start + perPage;
+    return filteredProducts.value.slice(start, end);
+});
+
+const { show, totalProducts, subcategoryName, subcategoryId, categoryName, categoryId, brandName, brandId, specialProductsLayout, productSectionVerticalPadding, productSectionHorizontalPadding, limit, enablePagination, sortBy } = defineProps({
     show: {
         type: Boolean,
         default: true
@@ -63,20 +97,30 @@ const { show, totalProducts, subcategoryName, subcategoryId, categoryName, categ
     enablePagination: {
         type: Boolean,
         default: false
+    },
+    sortBy: {
+        type: String,
+        default: ''
     }
 })
 
 async function fetchAllProducts() {
     isLoading.value = true;
     let url = `/v1/products`;
-    if (subcategoryId) {
+    if (searchQuery.value) {
+        url = `/v1/products?limit=100000000000`;
+    } else if (subcategoryId) {
         url = `/v1/products?subcategory=${subcategoryId}`;
     } else if (categoryId) {
         url = `/v1/products?category=${categoryId}`;
     } else if (brandId) {
         url = `/v1/products?brand=${brandId}`;
     }
-    if (enablePagination && limit > 0) {
+    if (sortBy) {
+        const separator = url.includes('?') ? '&' : '?';
+        url += `${separator}sort=${sortBy}`;
+    }
+    if (enablePagination && limit > 0 && !searchQuery.value) {
         const page = route.query.page || 1;
         const separator = url.includes('?') ? '&' : '?';
         url += `${separator}page=${page}&limit=${limit}`;
@@ -84,6 +128,17 @@ async function fetchAllProducts() {
     const res = await fetchData({ url });
     if (res) {
         data.value = res.data;
+        if (searchQuery.value) {
+            const currentPage = Number(route.query.page) || 1;
+            const perPage = limit || 8;
+            const numberOfPages = Math.ceil(filteredProducts.value.length / perPage) || 1;
+            emit('pagination-change', {
+                currentPage,
+                numberOfPages,
+            });
+            isLoading.value = false;
+            return;
+        }
         const shouldPaginate = enablePagination && limit > 0;
         if (!shouldPaginate) {
             emit('pagination-change', null);
@@ -124,7 +179,7 @@ onMounted(() => {
 });
 
 watch(
-    () => [subcategoryName, categoryName, subcategoryId, categoryId, brandName, brandId, route.query.page],
+    () => [subcategoryName, categoryName, subcategoryId, categoryId, brandName, brandId, route.query.page, route.query.q, sortBy],
     () => {
         fetchAllProducts();
     }
@@ -183,10 +238,10 @@ watch(
                 :special-title="'Products'" />
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
                 :class="specialProductsLayout">
-                <ProductCard v-for="product in data" :key="product.id" :product="product" />
+                <ProductCard v-for="product in displayedProducts" :key="product.id" :product="product" />
             </div>
             <!-- No Products Found -->
-            <NoProductsFound v-if="!isLoading && data?.length === 0" />
+            <NoProductsFound v-if="!isLoading && displayedProducts?.length === 0" />
         </div>
     </section>
 </template>
