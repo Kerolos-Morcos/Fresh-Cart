@@ -79,11 +79,9 @@ function getQueryArray(key) {
 
 function toggleQueryItem(key, id) {
     const currentItems = getQueryArray(key);
-
     const newItems = currentItems.includes(id)
         ? currentItems.filter(item => item !== id)
         : [...currentItems, id];
-
     router.push({
         path: '/search',
         query: {
@@ -99,7 +97,6 @@ async function fetchMinProductPrice() {
         url: '/v1/products?limit=100000',
         method: 'get'
     });
-
     if (res) {
         const prices = res.data.map(product => product.price);
         minProductPrice.value = Math.min(...prices);
@@ -110,7 +107,6 @@ function normalizePrices() {
     if (minPriceValue.value && Number(minPriceValue.value) < minProductPrice.value) {
         minPriceValue.value = minProductPrice.value;
     }
-
     if (maxPriceValue.value && Number(maxPriceValue.value) < minProductPrice.value) {
         maxPriceValue.value = minProductPrice.value;
     }
@@ -129,18 +125,9 @@ const hasActiveFilters = computed(() =>
     !!route.query.categories ||
     !!route.query.brands ||
     !!route.query.minPrice ||
-    !!route.query.maxPrice
+    !!route.query.maxPrice ||
+    !!route.query.sort
 );
-
-function clearAllFilters() {
-    router.push({
-        path: '/search',
-        query: {}
-    });
-
-    minPriceValue.value = '';
-    maxPriceValue.value = '';
-}
 
 watch([minPriceValue, maxPriceValue], ([min, max]) => {
     router.replace({
@@ -172,7 +159,12 @@ onMounted(() => {
     <div class="bg-[#FBFCFD]">
         <div class="container mx-auto px-4 py-8">
             <div class="flex gap-8">
-                <AsideFilter :categories="categories" :brands="brands" />
+                <AsideFilter :categories="categories" :brands="brands" :get-query-array="getQueryArray"
+                    :toggle-query-item="toggleQueryItem" :min-price="minPriceValue" :max-price="maxPriceValue"
+                    @update:min-price="minPriceValue = $event" @update:max-price="maxPriceValue = $event"
+                    :min-product-price="minProductPrice" :normalize-prices="normalizePrices"
+                    :set-max-price="setMaxPrice" :is-active-max-price="isActiveMaxPrice"
+                    :has-active-filters="hasActiveFilters" />
                 <main class="flex-1 min-w-0">
                     <div class="flex items-center justify-between mb-6 gap-4 flex-wrap">
                         <div class="flex items-center gap-4">
@@ -190,10 +182,10 @@ onMounted(() => {
                             <AsideFilterOffCanvas :is-open="isFiltersOpen" @close="isFiltersOpen = false"
                                 :categories="categories" :brands="brands" :get-query-array="getQueryArray"
                                 :toggle-query-item="toggleQueryItem" :min-price="minPriceValue"
-                                :max-price="maxPriceValue" :min-product-price="minProductPrice"
+                                :max-price="maxPriceValue" @update:min-price="minPriceValue = $event"
+                                @update:max-price="maxPriceValue = $event" :min-product-price="minProductPrice"
                                 :normalize-prices="normalizePrices" :set-max-price="setMaxPrice"
-                                :is-active-max-price="isActiveMaxPrice" :has-active-filters="hasActiveFilters"
-                                @update:min-price="minPriceValue = $event" @update:max-price="maxPriceValue = $event" />
+                                :is-active-max-price="isActiveMaxPrice" :has-active-filters="hasActiveFilters" />
                             <ProductsOrientation v-model="productsLayout" />
                         </div>
                         <SortBy v-model="sortValue" />
