@@ -19,7 +19,6 @@ const allProducts = computed(() => {
 });
 
 const filteredProducts = computed(() => {
-    if (!searchQuery.value) return allProducts.value;
     return allProducts.value.filter(product => {
         const title = product.title?.toLowerCase() || '';
         const brand = product.brand?.name?.toLowerCase() || '';
@@ -27,25 +26,36 @@ const filteredProducts = computed(() => {
         const subcategory = Array.isArray(product.subcategory)
             ? product.subcategory.map(s => s.name?.toLowerCase()).join(' ')
             : '';
-        return (
+        const matchesSearch =
+            !searchQuery.value ||
             title.includes(searchQuery.value) ||
             brand.includes(searchQuery.value) ||
             category.includes(searchQuery.value) ||
-            subcategory.includes(searchQuery.value)
-        );
+            subcategory.includes(searchQuery.value);
+        const matchesCategory =
+            categoryIds.length === 0 ||
+            categoryIds.includes(product.category?._id);
+        const matchesBrand =
+            brandIds.length === 0 ||
+            brandIds.includes(product.brand?._id);
+        return matchesSearch && matchesCategory && matchesBrand;
     });
 });
 
 const displayedProducts = computed(() => {
-    if (!searchQuery.value) return filteredProducts.value;
+    if (!searchQuery.value && !hasMultiFilters.value) {
+        return filteredProducts.value;
+    }
+
     const page = Number(route.query.page) || 1;
     const perPage = limit || 8;
     const start = (page - 1) * perPage;
     const end = start + perPage;
+
     return filteredProducts.value.slice(start, end);
 });
 
-const { show, totalProducts, subcategoryName, subcategoryId, categoryName, categoryId, brandName, brandId, specialProductsLayout, productSectionVerticalPadding, productSectionHorizontalPadding, limit, enablePagination, sortBy } = defineProps({
+const { show, totalProducts, subcategoryName, subcategoryId, categoryName, categoryId, brandName, brandId, specialProductsLayout, productSectionVerticalPadding, productSectionHorizontalPadding, limit, enablePagination, sortBy, categoryIds, brandIds } = defineProps({
     show: {
         type: Boolean,
         default: true
@@ -101,13 +111,25 @@ const { show, totalProducts, subcategoryName, subcategoryId, categoryName, categ
     sortBy: {
         type: String,
         default: ''
+    },
+    categoryIds: {
+        type: Array,
+        default: () => []
+    },
+    brandIds: {
+        type: Array,
+        default: () => []
     }
 })
+
+const hasMultiFilters = computed(() =>
+    categoryIds.length > 0 || brandIds.length > 0
+);
 
 async function fetchAllProducts() {
     isLoading.value = true;
     let url = `/v1/products`;
-    if (searchQuery.value) {
+    if (searchQuery.value || hasMultiFilters.value) {
         url = `/v1/products?limit=100000000000`;
     } else if (subcategoryId) {
         url = `/v1/products?subcategory=${subcategoryId}`;
@@ -128,7 +150,7 @@ async function fetchAllProducts() {
     const res = await fetchData({ url });
     if (res) {
         data.value = res.data;
-        if (searchQuery.value) {
+        if (searchQuery.value || hasMultiFilters.value) {
             emit('results-count', filteredProducts.value.length);
             const currentPage = Number(route.query.page) || 1;
             const perPage = limit || 8;
@@ -182,7 +204,7 @@ onMounted(() => {
 });
 
 watch(
-    () => [subcategoryName, categoryName, subcategoryId, categoryId, brandName, brandId, route.query.page, route.query.q, sortBy],
+    () => [subcategoryName, categoryName, subcategoryId, categoryId, brandName, brandId, route.query.page, route.query.q, sortBy, categoryIds.join(','), brandIds.join(',')],
     () => {
         fetchAllProducts();
     }

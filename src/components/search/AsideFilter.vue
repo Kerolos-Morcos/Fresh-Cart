@@ -1,5 +1,62 @@
 <script setup>
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useAPI } from '@/composables/useAPI';
 
+const route = useRoute();
+const router = useRouter();
+const { fetchData } = useAPI();
+
+const categories = ref([]);
+const brands = ref([]);
+
+async function fetchCategories() {
+    const res = await fetchData({
+        url: '/v1/categories',
+        method: 'get'
+    });
+    if (res) {
+        categories.value = res.data;
+    }
+}
+
+async function fetchBrands() {
+    const res = await fetchData({
+        url: '/v1/brands',
+        method: 'get'
+    });
+    if (res) {
+        brands.value = res.data;
+    }
+}
+
+function getQueryArray(key) {
+    return route.query[key]
+        ? String(route.query[key]).split(',')
+        : [];
+}
+
+function toggleQueryItem(key, id) {
+    const currentItems = getQueryArray(key);
+
+    const newItems = currentItems.includes(id)
+        ? currentItems.filter(item => item !== id)
+        : [...currentItems, id];
+
+    router.push({
+        path: '/search',
+        query: {
+            ...route.query,
+            [key]: newItems.length ? newItems.join(',') : undefined,
+            page: 1
+        }
+    });
+}
+
+onMounted(() => {
+    fetchCategories();
+    fetchBrands();
+});
 </script>
 
 <template>
@@ -10,67 +67,21 @@
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-gray-900">Categories</h3>
                     </div>
+                    <!-- Categories -->
                     <div class="space-y-2 max-h-52 overflow-y-auto">
-                        <label class="flex items-center gap-3 cursor-pointer group">
+                        <label v-for="category in categories" :key="category._id"
+                            class="flex items-center gap-3 cursor-pointer group">
                             <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Music</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Men's
-                                Fashion</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Women's
-                                Fashion</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span
-                                class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">SuperMarket</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Baby
-                                &amp; Toys</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Home</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Books</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Beauty
-                                &amp; Health</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span
-                                class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Mobiles</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span
-                                class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Electronics</span>
+                                type="checkbox" :checked="getQueryArray('categories').includes(category._id)"
+                                @change="toggleQueryItem('categories', category._id)">
+                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
+                                {{ category.name }}
+                            </span>
                         </label>
                     </div>
                 </div>
                 <hr class="border-gray-100">
+                <!-- Price Range -->
                 <div>
                     <h3 class="font-bold text-gray-900 mb-4">Price Range</h3>
                     <div class="grid grid-cols-2 gap-3 mb-3">
@@ -105,93 +116,20 @@
                     </div>
                 </div>
                 <hr class="border-gray-100">
+                <!-- Brands -->
                 <div>
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-gray-900">Brands</h3>
                     </div>
                     <div class="space-y-2 max-h-52 overflow-y-auto">
-                        <label class="flex items-center gap-3 cursor-pointer group">
+                        <label v-for="brand in brands" :key="brand._id"
+                            class="flex items-center gap-3 cursor-pointer group">
                             <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Canon</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Dell</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span
-                                class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Lenovo</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">SONY</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span
-                                class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Infinix</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span
-                                class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Realme</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">HONOR</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Nokia</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">OPPO</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span
-                                class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Huawei</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Apple</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span
-                                class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Xiaomi</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span
-                                class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Samsung</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Jack
-                                &amp; Jones</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">LC
-                                Waikiki</span>
+                                type="checkbox" :checked="getQueryArray('brands').includes(brand._id)"
+                                @change="toggleQueryItem('brands', brand._id)">
+                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
+                                {{ brand.name }}
+                            </span>
                         </label>
                     </div>
                 </div>

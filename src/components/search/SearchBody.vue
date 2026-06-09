@@ -1,4 +1,5 @@
 <script setup>
+import { useRoute } from 'vue-router';
 import Products from '../shop/Products.vue';
 import AsideFilter from './AsideFilter.vue';
 import Pagination from './Pagination.vue';
@@ -6,6 +7,7 @@ import ProductsOrientation from './ProductsOrientation.vue';
 import SortBy from './SortBy.vue';
 import { ref, computed } from 'vue';
 
+const route = useRoute();
 const pagination = ref(null);
 const productsLayout = ref('grid');
 const sortValue = ref('');
@@ -17,6 +19,9 @@ const productsClasses = computed(() => {
         ? 'grid! grid-cols-2! sm:grid-cols-3! lg:grid-cols-4! gap-4!'
         : 'block! space-y-4!';
 });
+
+const categoryIds = computed(() => route.query.categories ? String(route.query.categories).split(',') : []);
+const brandIds = computed(() => route.query.brands ? String(route.query.brands).split(',') : []);
 </script>
 
 <template>
@@ -46,7 +51,8 @@ const productsClasses = computed(() => {
                     <Products :show="false" :special-products-layout="productsClasses"
                         :product-section-vertical-padding="'py-2!'" :product-section-horizontal-padding="'px-0!'"
                         :limit="12" :enable-pagination="true" @pagination-change="pagination = $event"
-                        :sort-by="sortValue" @results-count="emit('results-count', $event)" />
+                        :sort-by="sortValue" @results-count="emit('results-count', $event)" :category-ids="categoryIds"
+                        :brand-ids="brandIds" />
                     <!-- Pagination -->
                     <Pagination v-if="pagination && pagination.numberOfPages > 1" :pagination="pagination" />
                 </main>
