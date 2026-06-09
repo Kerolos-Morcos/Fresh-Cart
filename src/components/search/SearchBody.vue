@@ -54,6 +54,14 @@ const activeFilters = computed(() => {
     ];
 });
 
+const minPrice = computed(() =>
+    route.query.minPrice ? Number(route.query.minPrice) : null
+);
+
+const maxPrice = computed(() =>
+    route.query.maxPrice ? Number(route.query.maxPrice) : null
+);
+
 onMounted(() => {
     fetchFiltersData();
 })
@@ -87,7 +95,8 @@ onMounted(() => {
                         :product-section-vertical-padding="'py-2!'" :product-section-horizontal-padding="'px-0!'"
                         :limit="12" :enable-pagination="true" @pagination-change="pagination = $event"
                         :sort-by="sortValue" @results-count="emit('results-count', $event)" :category-ids="categoryIds"
-                        :brand-ids="brandIds" :active-filters="activeFilters" />
+                        :brand-ids="brandIds" :active-filters="activeFilters" :min-price="minPrice"
+                        :max-price="maxPrice" />
                     <!-- Pagination -->
                     <Pagination v-if="pagination && pagination.numberOfPages > 1" :pagination="pagination" />
                 </main>

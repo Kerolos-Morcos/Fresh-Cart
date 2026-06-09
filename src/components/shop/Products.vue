@@ -50,7 +50,6 @@ const displayedProducts = computed(() => {
     const perPage = props.limit || 8;
     const start = (page - 1) * perPage;
     const end = start + perPage;
-
     return filteredProducts.value.slice(start, end);
 });
 
@@ -72,11 +71,19 @@ const props = defineProps({
     categoryIds: { type: Array, default: () => [] },
     brandIds: { type: Array, default: () => [] },
     activeFilters: { type: Array, default: () => [] },
+    minPrice: { type: Number, default: null },
+    maxPrice: { type: Number, default: null }
 });
 
 const hasMultiFilters = computed(() =>
     props.categoryIds.length > 0 || props.brandIds.length > 0
 );
+
+function addQueryParam(url, key, value) {
+    if (!value) return url;
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}${key}=${value}`;
+}
 
 async function fetchAllProducts() {
     isLoading.value = true;
@@ -91,13 +98,19 @@ async function fetchAllProducts() {
         url = `/v1/products?brand=${props.brandId}`;
     }
     if (props.sortBy) {
-        const separator = url.includes('?') ? '&' : '?';
-        url += `${separator}sort=${props.sortBy}`;
+        url = addQueryParam(url, 'sort', props.sortBy);
     }
-    if (props.enablePagination && props.limit > 0 && !searchQuery.value) {
+    if (props.minPrice) {
+        url = addQueryParam(url, 'price[gte]', props.minPrice);
+    }
+
+    if (props.maxPrice) {
+        url = addQueryParam(url, 'price[lte]', props.maxPrice);
+    }
+    if (props.enablePagination && props.limit > 0 && !searchQuery.value && !hasMultiFilters.value) {
         const page = route.query.page || 1;
-        const separator = url.includes('?') ? '&' : '?';
-        url += `${separator}page=${page}&limit=${props.limit}`;
+        url = addQueryParam(url, 'page', page);
+        url = addQueryParam(url, 'limit', props.limit);
     }
     const res = await fetchData({ url });
     if (res) {
@@ -166,12 +179,29 @@ const activeFilterName = computed(() => {
     return searchQuery.value || props.subcategoryName || props.categoryName || props.brandName || '';
 });
 
+const priceFilterLabel = computed(() => {
+    if (!props.minPrice && !props.maxPrice) return '';
+    const min = props.minPrice || 0;
+    const max = props.maxPrice || 'No limit';
+    return `${min} - ${max} EGP`;
+});
+
+const removePriceFilterLink = computed(() => ({
+    path: '/search',
+    query: {
+        ...route.query,
+        minPrice: undefined,
+        maxPrice: undefined,
+        page: 1
+    }
+}));
+
 onMounted(() => {
     fetchAllProducts();
 });
 
 watch(
-    () => [props.subcategoryName, props.categoryName, props.subcategoryId, props.categoryId, props.brandName, props.brandId, route.query.page, route.query.q, props.sortBy, props.categoryIds.join(','), props.brandIds.join(',')],
+    () => [props.subcategoryName, props.categoryName, props.subcategoryId, props.categoryId, props.brandName, props.brandId, route.query.page, route.query.q, props.sortBy, props.categoryIds.join(','), props.brandIds.join(','), props.minPrice, props.maxPrice],
     () => {
         fetchAllProducts();
     }
@@ -187,7 +217,7 @@ watch(
                 props.activeFilters.length ||
                 props.categoryName ||
                 props.brandName ||
-                props.subcategoryName" class="mb-6 flex items-center gap-3 flex-wrap">
+                props.subcategoryName || priceFilterLabel" class="mb-6 flex items-center gap-3 flex-wrap">
                 <span class="flex items-center gap-2 text-sm font-medium text-gray-600">
                     <svg data-prefix="fas" data-icon="filter" class="w-3 svg-inline--fa fa-filter" role="img"
                         viewBox="0 0 512 512" aria-hidden="true">
@@ -202,6 +232,17 @@ watch(
                     class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors bg-blue-100! text-blue-700! hover:bg-blue-200!"
                     to="/search">
                     {{ searchQuery }}
+                    <svg data-prefix="fas" data-icon="xmark" class="w-2 svg-inline--fa fa-xmark text-xs" role="img"
+                        viewBox="0 0 384 512" aria-hidden="true">
+                        <path fill="currentColor"
+                            d="M55.1 73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L147.2 256 9.9 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192.5 301.3 329.9 438.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.8 256 375.1 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192.5 210.7 55.1 73.4z">
+                        </path>
+                    </svg>
+                </RouterLink>
+                <!-- Price -->
+                <RouterLink v-if="priceFilterLabel" :to="removePriceFilterLink"
+                    class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs">
+                    {{ priceFilterLabel }}
                     <svg data-prefix="fas" data-icon="xmark" class="w-2 svg-inline--fa fa-xmark text-xs" role="img"
                         viewBox="0 0 384 512" aria-hidden="true">
                         <path fill="currentColor"
@@ -242,7 +283,7 @@ watch(
                     </svg>
                 </RouterLink>
                 <!-- Old Shop Filter: /shop?category=... or /shop?brand=... -->
-                <RouterLink v-if="!searchQuery && activeFilterName"
+                <RouterLink v-if="!searchQuery && !props.activeFilters.length && activeFilterName"
                     class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
                     :class="props.brandName
                         ? ['bg-violet-100!', 'text-violet-700!', 'hover:bg-violet-200!']
@@ -273,7 +314,7 @@ watch(
                     </svg>
                 </RouterLink>
                 <RouterLink class="text-sm font-medium text-gray-500 hover:text-gray-700 underline"
-                    :to="searchQuery ? '/search' : '/shop'">
+                    :to="route.path === '/shop' ? '/shop' : '/search'">
                     Clear all
                 </RouterLink>
             </div>

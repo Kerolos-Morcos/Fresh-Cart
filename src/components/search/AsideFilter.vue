@@ -1,8 +1,15 @@
 <script setup>
+import { useAPI } from '@/composables/useAPI';
+import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
 const router = useRouter();
+const { fetchData } = useAPI();
+
+const minPrice = ref(route.query.minPrice || '');
+const maxPrice = ref(route.query.maxPrice || '');
+const minProductPrice = ref(0);
 
 defineProps({
     categories: {
@@ -36,6 +43,58 @@ function toggleQueryItem(key, id) {
         }
     });
 }
+
+watch(
+    () => [route.query.minPrice, route.query.maxPrice],
+    ([min, max]) => {
+        minPrice.value = min || '';
+        maxPrice.value = max || '';
+    }
+);
+
+watch([minPrice, maxPrice], ([min, max]) => {
+    router.replace({
+        path: '/search',
+        query: {
+            ...route.query,
+            minPrice: min || undefined,
+            maxPrice: max || undefined,
+            page: 1
+        }
+    });
+});
+
+function setMaxPrice(value) {
+    maxPrice.value = value;
+}
+
+function isActiveMaxPrice(value) {
+    return Number(maxPrice.value) === value;
+}
+
+async function fetchMinProductPrice() {
+    const res = await fetchData({
+        url: '/v1/products?limit=100000',
+        method: 'get'
+    });
+    if (res) {
+        const prices = res.data.map(product => product.price);
+        minProductPrice.value = Math.min(...prices);
+    }
+}
+
+function normalizePrices() {
+    if (minPrice.value && Number(minPrice.value) < minProductPrice.value) {
+        minPrice.value = minProductPrice.value;
+    }
+    if (maxPrice.value && Number(maxPrice.value) < minProductPrice.value) {
+        maxPrice.value = minProductPrice.value;
+    }
+}
+
+onMounted(() => {
+    fetchMinProductPrice();
+});
 </script>
 
 <template>
@@ -66,31 +125,47 @@ function toggleQueryItem(key, id) {
                     <div class="grid grid-cols-2 gap-3 mb-3">
                         <div>
                             <label class="text-xs text-gray-500 mb-1 block">Min (EGP)</label>
-                            <input placeholder="0"
+                            <input v-model="minPrice" :min="minProductPrice" @blur="normalizePrices"
+                                :placeholder="String(minProductPrice)"
                                 class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
                                 type="number" value="">
                         </div>
                         <div>
                             <label class="text-xs text-gray-500 mb-1 block">Max (EGP)</label>
-                            <input placeholder="No limit"
+                            <input v-model="maxPrice" :min="minProductPrice" @blur="normalizePrices"
+                                placeholder="No limit"
                                 class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
                                 type="number" value="">
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <button
-                            class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200">Under
-                            500
+                        <button @click="setMaxPrice(500)"
+                            class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            :class="isActiveMaxPrice(500)
+                                ? 'bg-green-600 text-white'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                            Under 500
                         </button>
-                        <button
-                            class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200">Under
-                            1K</button>
-                        <button
-                            class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200">Under
-                            5K</button>
-                        <button
-                            class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200">Under
-                            10K
+                        <button @click="setMaxPrice(1000)"
+                            class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            :class="isActiveMaxPrice(1000)
+                                ? 'bg-green-600 text-white'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                            Under 1K
+                        </button>
+                        <button @click="setMaxPrice(5000)"
+                            class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            :class="isActiveMaxPrice(5000)
+                                ? 'bg-green-600 text-white'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                            Under 5K
+                        </button>
+                        <button @click="setMaxPrice(10000)"
+                            class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            :class="isActiveMaxPrice(10000)
+                                ? 'bg-green-600 text-white'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                            Under 10K
                         </button>
                     </div>
                 </div>
