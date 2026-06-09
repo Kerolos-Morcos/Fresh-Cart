@@ -33,11 +33,11 @@ const filteredProducts = computed(() => {
             category.includes(searchQuery.value) ||
             subcategory.includes(searchQuery.value);
         const matchesCategory =
-            categoryIds.length === 0 ||
-            categoryIds.includes(product.category?._id);
+            props.categoryIds.length === 0 ||
+            props.categoryIds.includes(product.category?._id);
         const matchesBrand =
-            brandIds.length === 0 ||
-            brandIds.includes(product.brand?._id);
+            props.brandIds.length === 0 ||
+            props.brandIds.includes(product.brand?._id);
         return matchesSearch && matchesCategory && matchesBrand;
     });
 });
@@ -46,84 +46,36 @@ const displayedProducts = computed(() => {
     if (!searchQuery.value && !hasMultiFilters.value) {
         return filteredProducts.value;
     }
-
     const page = Number(route.query.page) || 1;
-    const perPage = limit || 8;
+    const perPage = props.limit || 8;
     const start = (page - 1) * perPage;
     const end = start + perPage;
 
     return filteredProducts.value.slice(start, end);
 });
 
-const { show, totalProducts, subcategoryName, subcategoryId, categoryName, categoryId, brandName, brandId, specialProductsLayout, productSectionVerticalPadding, productSectionHorizontalPadding, limit, enablePagination, sortBy, categoryIds, brandIds } = defineProps({
-    show: {
-        type: Boolean,
-        default: true
-    },
-    totalProducts: {
-        type: Boolean,
-        default: false
-    },
-    subcategoryName: {
-        type: String,
-        default: ''
-    },
-    subcategoryId: {
-        type: String,
-        default: null
-    },
-    categoryName: {
-        type: String,
-        default: ''
-    },
-    categoryId: {
-        type: String,
-        default: null
-    },
-    brandName: {
-        type: String,
-        default: ''
-    },
-    brandId: {
-        type: String,
-        default: null
-    },
-    specialProductsLayout: {
-        type: String,
-        default: ''
-    },
-    productSectionVerticalPadding: {
-        type: String,
-        default: ''
-    },
-    productSectionHorizontalPadding: {
-        type: String,
-        default: ''
-    },
-    limit: {
-        type: Number,
-        default: null
-    },
-    enablePagination: {
-        type: Boolean,
-        default: false
-    },
-    sortBy: {
-        type: String,
-        default: ''
-    },
-    categoryIds: {
-        type: Array,
-        default: () => []
-    },
-    brandIds: {
-        type: Array,
-        default: () => []
-    }
-})
+const props = defineProps({
+    show: { type: Boolean, default: true },
+    totalProducts: { type: Boolean, default: false },
+    subcategoryName: { type: String, default: '' },
+    subcategoryId: { type: String, default: null },
+    categoryName: { type: String, default: '' },
+    categoryId: { type: String, default: null },
+    brandName: { type: String, default: '' },
+    brandId: { type: String, default: null },
+    specialProductsLayout: { type: String, default: '' },
+    productSectionVerticalPadding: { type: String, default: '' },
+    productSectionHorizontalPadding: { type: String, default: '' },
+    limit: { type: Number, default: null },
+    enablePagination: { type: Boolean, default: false },
+    sortBy: { type: String, default: '' },
+    categoryIds: { type: Array, default: () => [] },
+    brandIds: { type: Array, default: () => [] },
+    activeFilters: { type: Array, default: () => [] },
+});
 
 const hasMultiFilters = computed(() =>
-    categoryIds.length > 0 || brandIds.length > 0
+    props.categoryIds.length > 0 || props.brandIds.length > 0
 );
 
 async function fetchAllProducts() {
@@ -131,21 +83,21 @@ async function fetchAllProducts() {
     let url = `/v1/products`;
     if (searchQuery.value || hasMultiFilters.value) {
         url = `/v1/products?limit=100000000000`;
-    } else if (subcategoryId) {
-        url = `/v1/products?subcategory=${subcategoryId}`;
-    } else if (categoryId) {
-        url = `/v1/products?category=${categoryId}`;
-    } else if (brandId) {
-        url = `/v1/products?brand=${brandId}`;
+    } else if (props.subcategoryId) {
+        url = `/v1/products?subcategory=${props.subcategoryId}`;
+    } else if (props.categoryId) {
+        url = `/v1/products?category=${props.categoryId}`;
+    } else if (props.brandId) {
+        url = `/v1/products?brand=${props.brandId}`;
     }
-    if (sortBy) {
+    if (props.sortBy) {
         const separator = url.includes('?') ? '&' : '?';
-        url += `${separator}sort=${sortBy}`;
+        url += `${separator}sort=${props.sortBy}`;
     }
-    if (enablePagination && limit > 0 && !searchQuery.value) {
+    if (props.enablePagination && props.limit > 0 && !searchQuery.value) {
         const page = route.query.page || 1;
         const separator = url.includes('?') ? '&' : '?';
-        url += `${separator}page=${page}&limit=${limit}`;
+        url += `${separator}page=${page}&limit=${props.limit}`;
     }
     const res = await fetchData({ url });
     if (res) {
@@ -153,7 +105,7 @@ async function fetchAllProducts() {
         if (searchQuery.value || hasMultiFilters.value) {
             emit('results-count', filteredProducts.value.length);
             const currentPage = Number(route.query.page) || 1;
-            const perPage = limit || 8;
+            const perPage = props.limit || 8;
             const numberOfPages = Math.ceil(filteredProducts.value.length / perPage) || 1;
             emit('pagination-change', {
                 currentPage,
@@ -164,7 +116,7 @@ async function fetchAllProducts() {
         } else {
             emit('results-count', data.value?.length || 0);
         }
-        const shouldPaginate = enablePagination && limit > 0;
+        const shouldPaginate = props.enablePagination && props.limit > 0;
         if (!shouldPaginate) {
             emit('pagination-change', null);
             isLoading.value = false;
@@ -182,7 +134,7 @@ async function fetchAllProducts() {
         }
         const currentPage = Number(route.query.page) || 1;
         const numberOfPages =
-            res.data.length < limit
+            res.data.length < props.limit
                 ? currentPage
                 : res.metadata?.numberOfPages || 1;
         emit('pagination-change', {
@@ -195,8 +147,23 @@ async function fetchAllProducts() {
     isLoading.value = false;
 }
 
+function removeFilterLink(filter) {
+    const currentItems = route.query[filter.type]
+        ? String(route.query[filter.type]).split(',')
+        : [];
+    const newItems = currentItems.filter(id => id !== filter.id);
+    return {
+        path: '/search',
+        query: {
+            ...route.query,
+            [filter.type]: newItems.length ? newItems.join(',') : undefined,
+            page: 1
+        }
+    };
+}
+
 const activeFilterName = computed(() => {
-    return searchQuery.value || subcategoryName || categoryName || brandName || '';
+    return searchQuery.value || props.subcategoryName || props.categoryName || props.brandName || '';
 });
 
 onMounted(() => {
@@ -204,7 +171,7 @@ onMounted(() => {
 });
 
 watch(
-    () => [subcategoryName, categoryName, subcategoryId, categoryId, brandName, brandId, route.query.page, route.query.q, sortBy, categoryIds.join(','), brandIds.join(',')],
+    () => [props.subcategoryName, props.categoryName, props.subcategoryId, props.categoryId, props.brandName, props.brandId, route.query.page, route.query.q, props.sortBy, props.categoryIds.join(','), props.brandIds.join(',')],
     () => {
         fetchAllProducts();
     }
@@ -213,10 +180,14 @@ watch(
 
 <template>
     <ComponentLoader v-if="isLoading" :title="'Products'" bgColor="bg-primary-50" iconColor="text-primary-600" />
-    <section v-else class="py-10" :class="productSectionVerticalPadding">
-        <div class="container mx-auto px-4" :class="productSectionHorizontalPadding">
+    <section v-else class="py-10" :class="props.productSectionVerticalPadding">
+        <div class="container mx-auto px-4" :class="props.productSectionHorizontalPadding">
             <!-- Active Filters -->
-            <div v-show="activeFilterName" class="mb-6 flex items-center gap-3 flex-wrap">
+            <div v-if="searchQuery ||
+                props.activeFilters.length ||
+                props.categoryName ||
+                props.brandName ||
+                props.subcategoryName" class="mb-6 flex items-center gap-3 flex-wrap">
                 <span class="flex items-center gap-2 text-sm font-medium text-gray-600">
                     <svg data-prefix="fas" data-icon="filter" class="w-3 svg-inline--fa fa-filter" role="img"
                         viewBox="0 0 512 512" aria-hidden="true">
@@ -226,28 +197,74 @@ watch(
                     </svg>
                     Active Filters:
                 </span>
-                <RouterLink
+                <!-- Search Query -->
+                <RouterLink v-if="searchQuery"
+                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors bg-blue-100! text-blue-700! hover:bg-blue-200!"
+                    to="/search">
+                    {{ searchQuery }}
+                    <svg data-prefix="fas" data-icon="xmark" class="w-2 svg-inline--fa fa-xmark text-xs" role="img"
+                        viewBox="0 0 384 512" aria-hidden="true">
+                        <path fill="currentColor"
+                            d="M55.1 73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L147.2 256 9.9 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192.5 301.3 329.9 438.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.8 256 375.1 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192.5 210.7 55.1 73.4z">
+                        </path>
+                    </svg>
+                </RouterLink>
+                <!-- Categories & Brands -->
+                <RouterLink v-for="filter in props.activeFilters" :key="`${filter.type}-${filter.id}`"
+                    :to="removeFilterLink(filter)"
                     class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
-                    :class="searchQuery
-                        ? ['bg-blue-100!', 'text-blue-700!', 'hover:bg-blue-200!'] : brandId
-                            ? ['bg-violet-100!', 'text-violet-700!', 'hover:bg-violet-200!']
-                            : ['bg-emerald-100!', 'text-emerald-700!', 'hover:bg-emerald-200!']"
-                    :to="searchQuery ? '/search' : '/shop'">
-                    <svg v-if="brandName" data-prefix="fas" data-icon="tags"
+                    :class="filter.type === 'brands'
+                        ? ['bg-violet-100!', 'text-violet-700!', 'hover:bg-violet-200!']
+                        : ['bg-emerald-100!', 'text-emerald-700!', 'hover:bg-emerald-200!']">
+                    <svg v-if="filter.type === 'brands'" data-prefix="fas" data-icon="tags"
                         class="w-3.5 svg-inline--fa fa-tags text-xs" role="img" viewBox="0 0 576 512"
                         aria-hidden="true">
                         <path fill="currentColor"
                             d="M401.2 39.1L549.4 189.4c27.7 28.1 27.7 73.1 0 101.2L393 448.9c-9.3 9.4-24.5 9.5-33.9 .2s-9.5-24.5-.2-33.9L515.3 256.8c9.2-9.3 9.2-24.4 0-33.7L367 72.9c-9.3-9.4-9.2-24.6 .2-33.9s24.6-9.2 33.9 .2zM32.1 229.5L32.1 96c0-35.3 28.7-64 64-64l133.5 0c17 0 33.3 6.7 45.3 18.7l144 144c25 25 25 65.5 0 90.5L285.4 418.7c-25 25-65.5 25-90.5 0l-144-144c-12-12-18.7-28.3-18.7-45.3zm144-85.5a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z">
                         </path>
                     </svg>
-                    <svg v-else-if="!searchQuery" data-prefix="fas" data-icon="folder-open"
+
+                    <svg v-else data-prefix="fas" data-icon="folder-open"
                         class="w-3.5 svg-inline--fa fa-folder-open text-xs" role="img" viewBox="0 0 576 512"
                         aria-hidden="true">
                         <path fill="currentColor"
                             d="M56 225.6L32.4 296.2 32.4 96c0-35.3 28.7-64 64-64l138.7 0c13.8 0 27.3 4.5 38.4 12.8l38.4 28.8c5.5 4.2 12.3 6.4 19.2 6.4l117.3 0c35.3 0 64 28.7 64 64l0 16-365.4 0c-41.3 0-78 26.4-91.1 65.6zM477.8 448L99 448c-32.8 0-55.9-32.1-45.5-63.2l48-144C108 221.2 126.4 208 147 208l378.8 0c32.8 0 55.9 32.1 45.5 63.2l-48 144c-6.5 19.6-24.9 32.8-45.5 32.8z">
                         </path>
                     </svg>
+
+                    {{ filter.label }}
+
+                    <svg data-prefix="fas" data-icon="xmark" class="w-2 svg-inline--fa fa-xmark text-xs" role="img"
+                        viewBox="0 0 384 512" aria-hidden="true">
+                        <path fill="currentColor"
+                            d="M55.1 73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L147.2 256 9.9 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192.5 301.3 329.9 438.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.8 256 375.1 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192.5 210.7 55.1 73.4z">
+                        </path>
+                    </svg>
+                </RouterLink>
+                <!-- Old Shop Filter: /shop?category=... or /shop?brand=... -->
+                <RouterLink v-if="!searchQuery && activeFilterName"
+                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+                    :class="props.brandName
+                        ? ['bg-violet-100!', 'text-violet-700!', 'hover:bg-violet-200!']
+                        : ['bg-emerald-100!', 'text-emerald-700!', 'hover:bg-emerald-200!']" to="/shop">
+                    <svg v-if="props.brandName" data-prefix="fas" data-icon="tags"
+                        class="w-3.5 svg-inline--fa fa-tags text-xs" role="img" viewBox="0 0 576 512"
+                        aria-hidden="true">
+                        <path fill="currentColor"
+                            d="M401.2 39.1L549.4 189.4c27.7 28.1 27.7 73.1 0 101.2L393 448.9c-9.3 9.4-24.5 9.5-33.9 .2s-9.5-24.5-.2-33.9L515.3 256.8c9.2-9.3 9.2-24.4 0-33.7L367 72.9c-9.3-9.4-9.2-24.6 .2-33.9s24.6-9.2 33.9 .2zM32.1 229.5L32.1 96c0-35.3 28.7-64 64-64l133.5 0c17 0 33.3 6.7 45.3 18.7l144 144c25 25 25 65.5 0 90.5L285.4 418.7c-25 25-65.5 25-90.5 0l-144-144c-12-12-18.7-28.3-18.7-45.3zm144-85.5a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z">
+                        </path>
+                    </svg>
+
+                    <svg v-else data-prefix="fas" data-icon="folder-open"
+                        class="w-3.5 svg-inline--fa fa-folder-open text-xs" role="img" viewBox="0 0 576 512"
+                        aria-hidden="true">
+                        <path fill="currentColor"
+                            d="M56 225.6L32.4 296.2 32.4 96c0-35.3 28.7-64 64-64l138.7 0c13.8 0 27.3 4.5 38.4 12.8l38.4 28.8c5.5 4.2 12.3 6.4 19.2 6.4l117.3 0c35.3 0 64 28.7 64 64l0 16-365.4 0c-41.3 0-78 26.4-91.1 65.6zM477.8 448L99 448c-32.8 0-55.9-32.1-45.5-63.2l48-144C108 221.2 126.4 208 147 208l378.8 0c32.8 0 55.9 32.1 45.5 63.2l-48 144c-6.5 19.6-24.9 32.8-45.5 32.8z">
+                        </path>
+                    </svg>
+
                     {{ activeFilterName }}
+
                     <svg data-prefix="fas" data-icon="xmark" class="w-2 svg-inline--fa fa-xmark text-xs" role="img"
                         viewBox="0 0 384 512" aria-hidden="true">
                         <path fill="currentColor"
@@ -260,12 +277,12 @@ watch(
                     Clear all
                 </RouterLink>
             </div>
-            <div v-show="totalProducts" class="mb-6 text-sm font-medium text-gray-500">Showing {{ data?.length }}
+            <div v-show="props.totalProducts" class="mb-6 text-sm font-medium text-gray-500">Showing {{ data?.length }}
                 products</div>
-            <SpecialSectionTitle v-show="show" :show-line="true" :section-title="'Featured'"
+            <SpecialSectionTitle v-show="props.show" :show-line="true" :section-title="'Featured'"
                 :special-title="'Products'" />
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
-                :class="specialProductsLayout">
+                :class="props.specialProductsLayout">
                 <ProductCard v-for="product in displayedProducts" :key="product.id" :product="product" />
             </div>
             <!-- No Products Found -->

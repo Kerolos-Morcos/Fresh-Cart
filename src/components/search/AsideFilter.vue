@@ -1,34 +1,19 @@
 <script setup>
-import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useAPI } from '@/composables/useAPI';
 
 const route = useRoute();
 const router = useRouter();
-const { fetchData } = useAPI();
 
-const categories = ref([]);
-const brands = ref([]);
-
-async function fetchCategories() {
-    const res = await fetchData({
-        url: '/v1/categories',
-        method: 'get'
-    });
-    if (res) {
-        categories.value = res.data;
+defineProps({
+    categories: {
+        type: Array,
+        default: () => []
+    },
+    brands: {
+        type: Array,
+        default: () => []
     }
-}
-
-async function fetchBrands() {
-    const res = await fetchData({
-        url: '/v1/brands',
-        method: 'get'
-    });
-    if (res) {
-        brands.value = res.data;
-    }
-}
+});
 
 function getQueryArray(key) {
     return route.query[key]
@@ -42,7 +27,6 @@ function toggleQueryItem(key, id) {
     const newItems = currentItems.includes(id)
         ? currentItems.filter(item => item !== id)
         : [...currentItems, id];
-
     router.push({
         path: '/search',
         query: {
@@ -52,11 +36,6 @@ function toggleQueryItem(key, id) {
         }
     });
 }
-
-onMounted(() => {
-    fetchCategories();
-    fetchBrands();
-});
 </script>
 
 <template>

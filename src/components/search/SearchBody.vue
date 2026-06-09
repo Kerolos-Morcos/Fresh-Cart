@@ -5,8 +5,13 @@ import AsideFilter from './AsideFilter.vue';
 import Pagination from './Pagination.vue';
 import ProductsOrientation from './ProductsOrientation.vue';
 import SortBy from './SortBy.vue';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useAPI } from '@/composables/useAPI.js';
 
+const { fetchData } = useAPI();
+
+const categories = ref([]);
+const brands = ref([]);
 const route = useRoute();
 const pagination = ref(null);
 const productsLayout = ref('grid');
@@ -22,13 +27,43 @@ const productsClasses = computed(() => {
 
 const categoryIds = computed(() => route.query.categories ? String(route.query.categories).split(',') : []);
 const brandIds = computed(() => route.query.brands ? String(route.query.brands).split(',') : []);
+
+async function fetchFiltersData() {
+    const categoriesRes = await fetchData({ url: '/v1/categories', method: 'get' });
+    if (categoriesRes) categories.value = categoriesRes.data;
+    const brandsRes = await fetchData({ url: '/v1/brands', method: 'get' });
+    if (brandsRes) brands.value = brandsRes.data;
+}
+
+const activeFilters = computed(() => {
+    return [
+        ...categories.value
+            .filter(category => categoryIds.value.includes(category._id))
+            .map(category => ({
+                type: 'categories',
+                id: category._id,
+                label: category.name
+            })),
+        ...brands.value
+            .filter(brand => brandIds.value.includes(brand._id))
+            .map(brand => ({
+                type: 'brands',
+                id: brand._id,
+                label: brand.name
+            }))
+    ];
+});
+
+onMounted(() => {
+    fetchFiltersData();
+})
 </script>
 
 <template>
     <div class="bg-[#FBFCFD]">
         <div class="container mx-auto px-4 py-8">
             <div class="flex gap-8">
-                <AsideFilter />
+                <AsideFilter :categories="categories" :brands="brands" />
                 <main class="flex-1 min-w-0">
                     <div class="flex items-center justify-between mb-6 gap-4 flex-wrap">
                         <div class="flex items-center gap-4">
@@ -52,7 +87,7 @@ const brandIds = computed(() => route.query.brands ? String(route.query.brands).
                         :product-section-vertical-padding="'py-2!'" :product-section-horizontal-padding="'px-0!'"
                         :limit="12" :enable-pagination="true" @pagination-change="pagination = $event"
                         :sort-by="sortValue" @results-count="emit('results-count', $event)" :category-ids="categoryIds"
-                        :brand-ids="brandIds" />
+                        :brand-ids="brandIds" :active-filters="activeFilters" />
                     <!-- Pagination -->
                     <Pagination v-if="pagination && pagination.numberOfPages > 1" :pagination="pagination" />
                 </main>
