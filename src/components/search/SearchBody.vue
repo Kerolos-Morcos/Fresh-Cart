@@ -1,18 +1,20 @@
 <script setup>
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import Products from '../shop/Products.vue';
 import AsideFilter from './AsideFilter.vue';
 import Pagination from './Pagination.vue';
 import ProductsOrientation from './ProductsOrientation.vue';
 import SortBy from './SortBy.vue';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useAPI } from '@/composables/useAPI.js';
+import AsideFilterOffCanvas from './AsideFilterOffCanvas.vue';
 
 const { fetchData } = useAPI();
 
 const categories = ref([]);
 const brands = ref([]);
 const route = useRoute();
+const router = useRouter();
 const pagination = ref(null);
 const productsLayout = ref('grid');
 const sortValue = ref('');
@@ -62,8 +64,107 @@ const maxPrice = computed(() =>
     route.query.maxPrice ? Number(route.query.maxPrice) : null
 );
 
+const isFiltersOpen = ref(false);
+
+
+const minPriceValue = ref(route.query.minPrice || '');
+const maxPriceValue = ref(route.query.maxPrice || '');
+const minProductPrice = ref(0);
+
+function getQueryArray(key) {
+    return route.query[key]
+        ? String(route.query[key]).split(',')
+        : [];
+}
+
+function toggleQueryItem(key, id) {
+    const currentItems = getQueryArray(key);
+
+    const newItems = currentItems.includes(id)
+        ? currentItems.filter(item => item !== id)
+        : [...currentItems, id];
+
+    router.push({
+        path: '/search',
+        query: {
+            ...route.query,
+            [key]: newItems.length ? newItems.join(',') : undefined,
+            page: 1
+        }
+    });
+}
+
+async function fetchMinProductPrice() {
+    const res = await fetchData({
+        url: '/v1/products?limit=100000',
+        method: 'get'
+    });
+
+    if (res) {
+        const prices = res.data.map(product => product.price);
+        minProductPrice.value = Math.min(...prices);
+    }
+}
+
+function normalizePrices() {
+    if (minPriceValue.value && Number(minPriceValue.value) < minProductPrice.value) {
+        minPriceValue.value = minProductPrice.value;
+    }
+
+    if (maxPriceValue.value && Number(maxPriceValue.value) < minProductPrice.value) {
+        maxPriceValue.value = minProductPrice.value;
+    }
+}
+
+function setMaxPrice(value) {
+    maxPriceValue.value = value;
+}
+
+function isActiveMaxPrice(value) {
+    return Number(maxPriceValue.value) === value;
+}
+
+const hasActiveFilters = computed(() =>
+    !!route.query.q ||
+    !!route.query.categories ||
+    !!route.query.brands ||
+    !!route.query.minPrice ||
+    !!route.query.maxPrice
+);
+
+function clearAllFilters() {
+    router.push({
+        path: '/search',
+        query: {}
+    });
+
+    minPriceValue.value = '';
+    maxPriceValue.value = '';
+}
+
+watch([minPriceValue, maxPriceValue], ([min, max]) => {
+    router.replace({
+        path: '/search',
+        query: {
+            ...route.query,
+            minPrice: min || undefined,
+            maxPrice: max || undefined,
+            page: 1
+        }
+    });
+});
+
+watch(
+    () => [route.query.minPrice, route.query.maxPrice],
+    ([min, max]) => {
+        minPriceValue.value = min || '';
+        maxPriceValue.value = max || '';
+    }
+);
+
 onMounted(() => {
     fetchFiltersData();
+    fetchMinProductPrice();
 })
 </script>
 
@@ -76,8 +177,8 @@ onMounted(() => {
                     <div class="flex items-center justify-between mb-6 gap-4 flex-wrap">
                         <div class="flex items-center gap-4">
                             <!-- Filter - Small Screens -->
-                            <button
-                                class="lg:hidden flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors">
+                            <button @click="isFiltersOpen = true"
+                                class="lg:hidden cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors">
                                 <svg data-prefix="fas" data-icon="sliders" class="w-4 svg-inline--fa fa-sliders"
                                     role="img" viewBox="0 0 512 512" aria-hidden="true">
                                     <path fill="currentColor"
@@ -86,6 +187,13 @@ onMounted(() => {
                                 </svg>
                                 Filters
                             </button>
+                            <AsideFilterOffCanvas :is-open="isFiltersOpen" @close="isFiltersOpen = false"
+                                :categories="categories" :brands="brands" :get-query-array="getQueryArray"
+                                :toggle-query-item="toggleQueryItem" :min-price="minPriceValue"
+                                :max-price="maxPriceValue" :min-product-price="minProductPrice"
+                                :normalize-prices="normalizePrices" :set-max-price="setMaxPrice"
+                                :is-active-max-price="isActiveMaxPrice" :has-active-filters="hasActiveFilters"
+                                @update:min-price="minPriceValue = $event" @update:max-price="maxPriceValue = $event" />
                             <ProductsOrientation v-model="productsLayout" />
                         </div>
                         <SortBy v-model="sortValue" />

@@ -1,7 +1,8 @@
 <script setup>
 import { useAPI } from '@/composables/useAPI';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import FiltersContent from './FiltersContent.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -92,6 +93,15 @@ function normalizePrices() {
     }
 }
 
+const hasActiveFilters = computed(() =>
+    !!route.query.q ||
+    !!route.query.categories ||
+    !!route.query.brands ||
+    !!route.query.minPrice ||
+    !!route.query.maxPrice ||
+    !!route.query.sort
+);
+
 onMounted(() => {
     fetchMinProductPrice();
 });
@@ -100,94 +110,11 @@ onMounted(() => {
 <template>
     <aside class="hidden lg:block w-64 shrink-0">
         <div class="bg-white rounded-2xl border border-gray-100 p-6 sticky top-24">
-            <div class="space-y-6">
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-gray-900">Categories</h3>
-                    </div>
-                    <!-- Categories -->
-                    <div class="space-y-2 max-h-52 overflow-y-auto">
-                        <label v-for="category in categories" :key="category._id"
-                            class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox" :checked="getQueryArray('categories').includes(category._id)"
-                                @change="toggleQueryItem('categories', category._id)">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
-                                {{ category.name }}
-                            </span>
-                        </label>
-                    </div>
-                </div>
-                <hr class="border-gray-100">
-                <!-- Price Range -->
-                <div>
-                    <h3 class="font-bold text-gray-900 mb-4">Price Range</h3>
-                    <div class="grid grid-cols-2 gap-3 mb-3">
-                        <div>
-                            <label class="text-xs text-gray-500 mb-1 block">Min (EGP)</label>
-                            <input v-model="minPrice" :min="minProductPrice" @blur="normalizePrices"
-                                :placeholder="String(minProductPrice)"
-                                class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
-                                type="number" value="">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-500 mb-1 block">Max (EGP)</label>
-                            <input v-model="maxPrice" :min="minProductPrice" @blur="normalizePrices"
-                                placeholder="No limit"
-                                class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
-                                type="number" value="">
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button @click="setMaxPrice(500)"
-                            class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200"
-                            :class="isActiveMaxPrice(500)
-                                ? 'bg-green-600 text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
-                            Under 500
-                        </button>
-                        <button @click="setMaxPrice(1000)"
-                            class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200"
-                            :class="isActiveMaxPrice(1000)
-                                ? 'bg-green-600 text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
-                            Under 1K
-                        </button>
-                        <button @click="setMaxPrice(5000)"
-                            class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200"
-                            :class="isActiveMaxPrice(5000)
-                                ? 'bg-green-600 text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
-                            Under 5K
-                        </button>
-                        <button @click="setMaxPrice(10000)"
-                            class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200"
-                            :class="isActiveMaxPrice(10000)
-                                ? 'bg-green-600 text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
-                            Under 10K
-                        </button>
-                    </div>
-                </div>
-                <hr class="border-gray-100">
-                <!-- Brands -->
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-gray-900">Brands</h3>
-                    </div>
-                    <div class="space-y-2 max-h-52 overflow-y-auto">
-                        <label v-for="brand in brands" :key="brand._id"
-                            class="flex items-center gap-3 cursor-pointer group">
-                            <input class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                type="checkbox" :checked="getQueryArray('brands').includes(brand._id)"
-                                @change="toggleQueryItem('brands', brand._id)">
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
-                                {{ brand.name }}
-                            </span>
-                        </label>
-                    </div>
-                </div>
-            </div>
+            <FiltersContent :categories="categories" :brands="brands" :get-query-array="getQueryArray"
+                :toggle-query-item="toggleQueryItem" :min-price="minPrice" :max-price="maxPrice"
+                @update:min-price="minPrice = $event" @update:max-price="maxPrice = $event"
+                :min-product-price="minProductPrice" :normalize-prices="normalizePrices" :set-max-price="setMaxPrice"
+                :is-active-max-price="isActiveMaxPrice" :has-active-filters="hasActiveFilters" />
         </div>
     </aside>
 </template>
